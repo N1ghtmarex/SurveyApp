@@ -22,6 +22,11 @@ namespace Domain.Entities
         public required QuestionTypeEnum Type { get; set; }
 
         /// <summary>
+        /// Связка с ответами
+        /// </summary>
+        public required ICollection<Answer> Answers { get; set; }
+
+        /// <summary>
         /// Дата создания
         /// </summary>
         public DateTimeOffset CreatedAt { get; set; }

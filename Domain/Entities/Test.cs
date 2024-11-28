@@ -15,6 +15,16 @@ namespace Domain.Entities
         public string? Description { get; set; }
 
         /// <summary>
+        /// Связка с вопросами
+        /// </summary>
+        public ICollection<Question>? Questions { get; set; }
+
+        /// <summary>
+        /// Связка с пользователями
+        /// </summary>
+        public ICollection<UserTestBind>? UserTestBinds {  get; set; } 
+
+        /// <summary>
         /// Дата создания
         /// </summary>
         public DateTimeOffset CreatedAt { get; set; }

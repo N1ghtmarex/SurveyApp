@@ -22,6 +22,6 @@
         /// <summary>
         /// Время завершения
         /// </summary>
-        public DateTimeOffset CompletedAt { get; set; }
+        public required DateTimeOffset CompletedAt { get; set; }
     }
 }
