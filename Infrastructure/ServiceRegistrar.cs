@@ -9,6 +9,7 @@ namespace Infrastructure
         public static IServiceCollection RegisterInfrastructureServices(this IServiceCollection services)
         {
             services.AddTransient<IUserService, UserService>();
+            services.AddTransient<ISurveyService, SurveyService>();
 
             return services;
         }
