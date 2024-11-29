@@ -14,10 +14,9 @@ namespace Domain.EntityConfigurations
 
             builder.Property(x => x.Name).IsRequired(true);
             builder.Property(x => x.Description).IsRequired(false);
-            builder.Property(x => x.Questions).IsRequired(false);
 
             builder.Property(x => x.CreatedAt).IsRequired(true);
-            builder.Property(x => x.UpdatedAt).IsRequired(false);
+            builder.Property(x => x.UpdatedAt).IsRequired(true);
             builder.Property(x => x.IsDeleted).IsRequired(true);
         }
     }

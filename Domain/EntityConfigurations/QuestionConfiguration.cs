@@ -17,12 +17,15 @@ namespace Domain.EntityConfigurations
                 .WithMany(x => x.Questions)
                 .HasForeignKey(x => x.TestId);
 
+            builder.HasMany(x => x.Answers)
+                .WithOne(x => x.Question)
+                .HasForeignKey(x => x.QuestionId);
+
             builder.Property(x => x.Title).IsRequired(true);
             builder.Property(x => x.Type).IsRequired(true);
-            builder.Property(x => x.Answers).IsRequired(true);
 
             builder.Property(x => x.CreatedAt).IsRequired(true);
-            builder.Property(x => x.UpdatedAt).IsRequired(false);
+            builder.Property(x => x.UpdatedAt).IsRequired(true);
             builder.Property(x => x.IsDeleted).IsRequired(true);
         }
     }
