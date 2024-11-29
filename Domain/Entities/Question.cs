@@ -24,7 +24,7 @@ namespace Domain.Entities
         /// <summary>
         /// Связка с ответами
         /// </summary>
-        public required ICollection<Answer> Answers { get; set; }
+        public ICollection<Answer>? Answers { get; set; }
 
         /// <summary>
         /// Дата создания
