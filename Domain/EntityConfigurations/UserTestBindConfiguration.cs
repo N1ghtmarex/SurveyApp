@@ -22,8 +22,6 @@ namespace Domain.EntityConfigurations
                 .WithMany(x => x.UserTestBinds)
                 .HasForeignKey(x => x.TestId);
 
-            builder.Property(x => x.Answers).IsRequired(true);
-
             builder.Property(x => x.CompletedAt).IsRequired(true);
         }
     }

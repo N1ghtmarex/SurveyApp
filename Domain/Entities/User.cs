@@ -2,7 +2,7 @@
 
 namespace Domain.Entities
 {
-    public class User : IdentityUser
+    public class User : BaseEntity<Guid>
     {
         /// <summary>
         /// Связка с тестами
