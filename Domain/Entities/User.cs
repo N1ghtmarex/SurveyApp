@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNet.Identity.EntityFramework;
-
-namespace Domain.Entities
+﻿namespace Domain.Entities
 {
     public class User : BaseEntity<Guid>
     {
@@ -8,5 +6,10 @@ namespace Domain.Entities
         /// Связка с тестами
         /// </summary>
         public ICollection<UserTestBind>? UserTestBinds { get; set; }
+
+        public required string Username { get; set; }
+        public required string Password { get; set; }
+        public required byte[] PasswordHash { get; set; }
+        public required byte[] PasswordSalt { get; set; }
     }
 }

@@ -2,25 +2,41 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
+using Application.Users.Commands;
+using MediatR;
 
 namespace WebApi.Controllers
 {
     [Route("api/users")]
     [ApiController]
-    public class UserController() : ControllerBase
+    public class UserController(ISender sender) : ControllerBase
     {
-        [HttpPost("login")]
-        public async Task<ActionResult> Login()
+        [HttpPost("register")]
+        public async Task<ActionResult<string>> Register(CreateUserCommand command, CancellationToken cancellationToken)
         {
-            var claims = new List<Claim> { new Claim(ClaimTypes.Name, "person.Email") };
-            
-            ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Cookies");
-            
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
-
-            return NoContent();
+            return await sender.Send(command, cancellationToken);
         }
-        [HttpGet("logout")]
+
+        [HttpPost("login")]
+        public async Task<ActionResult> Login(AuthUserCommand command, CancellationToken cancellationToken)
+        {
+            var userId = await sender.Send(command, cancellationToken);
+
+            if (userId != null)
+            {
+                var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, userId) };
+
+                ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Cookies");
+
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+
+                return Ok();
+            }
+
+            return BadRequest();
+        }
+
+        [HttpPost("logout")]
         public async Task<ActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

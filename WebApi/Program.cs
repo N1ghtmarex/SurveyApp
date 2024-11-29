@@ -1,10 +1,17 @@
+using Application;
 using Domain;
+using Common;
+using Infrastructure;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using WebApi.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.RegisterDataAccessService(builder.Configuration);
+builder.Services.RegisterUseCasesService();
+builder.Services.RegisterCommonServices();
+builder.Services.RegisterInfrastructureServices();
 
 builder.Services.AddSwaggerGen();
 
@@ -32,6 +39,8 @@ var app = builder.Build();
 app.MigrateDb();
 
 app.UseRouting();
+
+app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();
