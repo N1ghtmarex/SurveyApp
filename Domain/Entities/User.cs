@@ -5,7 +5,7 @@
         /// <summary>
         /// Связка с тестами
         /// </summary>
-        public ICollection<UserTestBind>? UserTestBinds { get; set; }
+        public ICollection<UserSurveyBind>? UserSurveyBinds { get; set; }
 
         public required string Username { get; set; }
         public required string Password { get; set; }

@@ -18,7 +18,6 @@ namespace Domain.EntityConfigurations
                 .HasForeignKey(x => x.QuestionId);
 
             builder.Property(x => x.Title).IsRequired(true);
-            builder.Property(x => x.IsTrue).IsRequired(true);
         }
     }
 }

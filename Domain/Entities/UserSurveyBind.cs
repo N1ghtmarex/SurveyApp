@@ -1,6 +1,6 @@
 ﻿namespace Domain.Entities
 {
-    public class UserTestBind : BaseEntity<Guid>
+    public class UserSurveyBind : BaseEntity<Guid>
     {
         /// <summary>
         /// Идентификатор пользователя
@@ -12,7 +12,7 @@
         /// Идентификатор теста
         /// </summary>
         public required Guid TestId { get; set; }
-        public Test? Test { get; set; }
+        public Survey? Test { get; set; }
 
         /// <summary>
         /// Ответы

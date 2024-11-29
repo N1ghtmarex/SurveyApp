@@ -8,9 +8,6 @@ namespace Domain.Enums
         OneAnswer = 0,
 
         [Description("Вопрос с несколькими правильными ответами")]
-        MultipleAnswer = 1,
-
-        [Description("Вопрос с вводом текста")]
-        InputAnswer = 2
+        MultipleAnswer = 1
     }
 }

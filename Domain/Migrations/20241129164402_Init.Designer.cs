@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Domain.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241129153012_test")]
-    partial class test
+    [Migration("20241129164402_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -32,10 +32,6 @@ namespace Domain.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<bool>("IsTrue")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_true");
-
                     b.Property<Guid>("QuestionId")
                         .HasColumnType("uuid")
                         .HasColumnName("question_id");
@@ -45,9 +41,9 @@ namespace Domain.Migrations
                         .HasColumnType("text")
                         .HasColumnName("title");
 
-                    b.Property<Guid?>("UserTestBindId")
+                    b.Property<Guid?>("UserSurveyBindId")
                         .HasColumnType("uuid")
-                        .HasColumnName("user_test_bind_id");
+                        .HasColumnName("user_survey_bind_id");
 
                     b.HasKey("Id")
                         .HasName("pk_answer");
@@ -55,8 +51,8 @@ namespace Domain.Migrations
                     b.HasIndex("QuestionId")
                         .HasDatabaseName("ix_answer_question_id");
 
-                    b.HasIndex("UserTestBindId")
-                        .HasDatabaseName("ix_answer_user_test_bind_id");
+                    b.HasIndex("UserSurveyBindId")
+                        .HasDatabaseName("ix_answer_user_survey_bind_id");
 
                     b.ToTable("answer", (string)null);
                 });
@@ -76,9 +72,9 @@ namespace Domain.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
-                    b.Property<Guid>("TestId")
+                    b.Property<Guid>("SurveyId")
                         .HasColumnType("uuid")
-                        .HasColumnName("test_id");
+                        .HasColumnName("survey_id");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -96,13 +92,13 @@ namespace Domain.Migrations
                     b.HasKey("Id")
                         .HasName("pk_question");
 
-                    b.HasIndex("TestId")
-                        .HasDatabaseName("ix_question_test_id");
+                    b.HasIndex("SurveyId")
+                        .HasDatabaseName("ix_question_survey_id");
 
                     b.ToTable("question", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Test", b =>
+            modelBuilder.Entity("Domain.Entities.Survey", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -131,9 +127,9 @@ namespace Domain.Migrations
                         .HasColumnName("updated_at");
 
                     b.HasKey("Id")
-                        .HasName("pk_test");
+                        .HasName("pk_survey");
 
-                    b.ToTable("test", (string)null);
+                    b.ToTable("survey", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.User", b =>
@@ -169,7 +165,7 @@ namespace Domain.Migrations
                     b.ToTable("user", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.UserTestBind", b =>
+            modelBuilder.Entity("Domain.Entities.UserSurveyBind", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -189,15 +185,15 @@ namespace Domain.Migrations
                         .HasColumnName("user_id");
 
                     b.HasKey("Id")
-                        .HasName("pk_user_test_bind");
+                        .HasName("pk_user_survey_bind");
 
                     b.HasIndex("TestId")
-                        .HasDatabaseName("ix_user_test_bind_test_id");
+                        .HasDatabaseName("ix_user_survey_bind_test_id");
 
                     b.HasIndex("UserId")
-                        .HasDatabaseName("ix_user_test_bind_user_id");
+                        .HasDatabaseName("ix_user_survey_bind_user_id");
 
-                    b.ToTable("user_test_bind", (string)null);
+                    b.ToTable("user_survey_bind", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Answer", b =>
@@ -209,41 +205,41 @@ namespace Domain.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_answer_questions_question_id");
 
-                    b.HasOne("Domain.Entities.UserTestBind", null)
+                    b.HasOne("Domain.Entities.UserSurveyBind", null)
                         .WithMany("Answers")
-                        .HasForeignKey("UserTestBindId")
-                        .HasConstraintName("fk_answer_users_test_binds_user_test_bind_id");
+                        .HasForeignKey("UserSurveyBindId")
+                        .HasConstraintName("fk_answer_users_test_binds_user_survey_bind_id");
 
                     b.Navigation("Question");
                 });
 
             modelBuilder.Entity("Domain.Entities.Question", b =>
                 {
-                    b.HasOne("Domain.Entities.Test", "Test")
+                    b.HasOne("Domain.Entities.Survey", "Survey")
                         .WithMany("Questions")
-                        .HasForeignKey("TestId")
+                        .HasForeignKey("SurveyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_question_tests_test_id");
+                        .HasConstraintName("fk_question_surveys_survey_id");
 
-                    b.Navigation("Test");
+                    b.Navigation("Survey");
                 });
 
-            modelBuilder.Entity("Domain.Entities.UserTestBind", b =>
+            modelBuilder.Entity("Domain.Entities.UserSurveyBind", b =>
                 {
-                    b.HasOne("Domain.Entities.Test", "Test")
-                        .WithMany("UserTestBinds")
+                    b.HasOne("Domain.Entities.Survey", "Test")
+                        .WithMany("UserSurveyBinds")
                         .HasForeignKey("TestId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_user_test_bind_test_test_id");
+                        .HasConstraintName("fk_user_survey_bind_survey_test_id");
 
                     b.HasOne("Domain.Entities.User", "User")
-                        .WithMany("UserTestBinds")
+                        .WithMany("UserSurveyBinds")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_user_test_bind_user_user_id");
+                        .HasConstraintName("fk_user_survey_bind_user_user_id");
 
                     b.Navigation("Test");
 
@@ -255,19 +251,19 @@ namespace Domain.Migrations
                     b.Navigation("Answers");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Test", b =>
+            modelBuilder.Entity("Domain.Entities.Survey", b =>
                 {
                     b.Navigation("Questions");
 
-                    b.Navigation("UserTestBinds");
+                    b.Navigation("UserSurveyBinds");
                 });
 
             modelBuilder.Entity("Domain.Entities.User", b =>
                 {
-                    b.Navigation("UserTestBinds");
+                    b.Navigation("UserSurveyBinds");
                 });
 
-            modelBuilder.Entity("Domain.Entities.UserTestBind", b =>
+            modelBuilder.Entity("Domain.Entities.UserSurveyBind", b =>
                 {
                     b.Navigation("Answers");
                 });

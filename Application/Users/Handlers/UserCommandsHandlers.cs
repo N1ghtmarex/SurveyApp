@@ -5,7 +5,6 @@ using Common.Interfaces;
 using Domain;
 using Domain.Entities;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace Application.Users.Handlers
 {

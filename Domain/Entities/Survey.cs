@@ -2,7 +2,7 @@
 
 namespace Domain.Entities
 {
-    public class Test : BaseEntity<Guid>, IHaveDateTrack, IHaveDeleteTrack
+    public class Survey : BaseEntity<Guid>, IHaveDateTrack, IHaveDeleteTrack
     {
         /// <summary>
         /// Название теста
@@ -22,7 +22,7 @@ namespace Domain.Entities
         /// <summary>
         /// Связка с пользователями
         /// </summary>
-        public ICollection<UserTestBind>? UserTestBinds {  get; set; } 
+        public ICollection<UserSurveyBind>? UserSurveyBinds {  get; set; } 
 
         /// <summary>
         /// Дата создания

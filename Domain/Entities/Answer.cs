@@ -12,10 +12,5 @@
         /// Текст ответа
         /// </summary>
         public required string Title { get; set; }
-
-        /// <summary>
-        /// Является ли правильным
-        /// </summary>
-        public required bool IsTrue { get; set; }
     }
 }

@@ -8,8 +8,8 @@ namespace Domain.Entities
         /// <summary>
         /// Идентификатор теста
         /// </summary>
-        public required Guid TestId { get; set; }
-        public Test? Test {  get; set; }
+        public required Guid SurveyId { get; set; }
+        public Survey? Survey {  get; set; }
 
         /// <summary>
         /// Текст вопроса
