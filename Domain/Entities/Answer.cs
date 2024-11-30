@@ -12,5 +12,7 @@
         /// Текст ответа
         /// </summary>
         public required string Title { get; set; }
+
+        public ICollection<Choice>? Choices { get; set; }
     }
 }

@@ -116,6 +116,31 @@ namespace Domain.Migrations
                         principalColumn: "id");
                 });
 
+            migrationBuilder.CreateTable(
+                name: "choice",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    answer_id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_choice", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_choice_answer_answer_id",
+                        column: x => x.answer_id,
+                        principalTable: "answer",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_choice_users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "user",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "ix_answer_question_id",
                 table: "answer",
@@ -125,6 +150,16 @@ namespace Domain.Migrations
                 name: "ix_answer_user_survey_bind_id",
                 table: "answer",
                 column: "user_survey_bind_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_choice_answer_id",
+                table: "choice",
+                column: "answer_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_choice_user_id",
+                table: "choice",
+                column: "user_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_question_survey_id",
@@ -145,6 +180,9 @@ namespace Domain.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "choice");
+
             migrationBuilder.DropTable(
                 name: "answer");
 

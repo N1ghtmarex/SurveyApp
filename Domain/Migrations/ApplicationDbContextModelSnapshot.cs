@@ -54,6 +54,33 @@ namespace Domain.Migrations
                     b.ToTable("answer", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Entities.Choice", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AnswerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("answer_id");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_choice");
+
+                    b.HasIndex("AnswerId")
+                        .HasDatabaseName("ix_choice_answer_id");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_choice_user_id");
+
+                    b.ToTable("choice", (string)null);
+                });
+
             modelBuilder.Entity("Domain.Entities.Question", b =>
                 {
                     b.Property<Guid>("Id")
@@ -210,6 +237,27 @@ namespace Domain.Migrations
                     b.Navigation("Question");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Choice", b =>
+                {
+                    b.HasOne("Domain.Entities.Answer", "Answer")
+                        .WithMany("Choices")
+                        .HasForeignKey("AnswerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_choice_answer_answer_id");
+
+                    b.HasOne("Domain.Entities.User", "User")
+                        .WithMany("Choices")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_choice_users_user_id");
+
+                    b.Navigation("Answer");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Domain.Entities.Question", b =>
                 {
                     b.HasOne("Domain.Entities.Survey", "Survey")
@@ -243,6 +291,11 @@ namespace Domain.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Answer", b =>
+                {
+                    b.Navigation("Choices");
+                });
+
             modelBuilder.Entity("Domain.Entities.Question", b =>
                 {
                     b.Navigation("Answers");
@@ -257,6 +310,8 @@ namespace Domain.Migrations
 
             modelBuilder.Entity("Domain.Entities.User", b =>
                 {
+                    b.Navigation("Choices");
+
                     b.Navigation("UserSurveyBinds");
                 });
 
