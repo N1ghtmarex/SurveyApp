@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Domain.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241201091238_test")]
-    partial class test
+    [Migration("20241201113443_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -199,9 +199,17 @@ namespace Domain.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<DateTimeOffset>("CompletedAt")
+                    b.Property<DateTimeOffset?>("CompletedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("completed_at");
+
+                    b.Property<DateTimeOffset>("StartedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("started_at");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
 
                     b.Property<Guid>("SurveyId")
                         .HasColumnType("uuid")
@@ -235,7 +243,7 @@ namespace Domain.Migrations
                     b.HasOne("Domain.Entities.UserSurveyBind", null)
                         .WithMany("Answers")
                         .HasForeignKey("UserSurveyBindId")
-                        .HasConstraintName("fk_answer_users_test_binds_user_survey_bind_id");
+                        .HasConstraintName("fk_answer_user_survey_binds_user_survey_bind_id");
 
                     b.Navigation("Question");
                 });

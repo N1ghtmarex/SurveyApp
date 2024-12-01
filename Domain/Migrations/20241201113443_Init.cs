@@ -70,16 +70,18 @@ namespace Domain.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
+                    status = table.Column<int>(type: "integer", nullable: false),
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    test_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    completed_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                    survey_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    started_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    completed_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_user_survey_bind", x => x.id);
                     table.ForeignKey(
-                        name: "fk_user_survey_bind_survey_test_id",
-                        column: x => x.test_id,
+                        name: "fk_user_survey_bind_survey_survey_id",
+                        column: x => x.survey_id,
                         principalTable: "survey",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
@@ -110,7 +112,7 @@ namespace Domain.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "fk_answer_users_test_binds_user_survey_bind_id",
+                        name: "fk_answer_user_survey_binds_user_survey_bind_id",
                         column: x => x.user_survey_bind_id,
                         principalTable: "user_survey_bind",
                         principalColumn: "id");
@@ -167,9 +169,9 @@ namespace Domain.Migrations
                 column: "survey_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_user_survey_bind_test_id",
+                name: "ix_user_survey_bind_survey_id",
                 table: "user_survey_bind",
-                column: "test_id");
+                column: "survey_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_user_survey_bind_user_id",

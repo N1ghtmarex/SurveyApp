@@ -3,6 +3,7 @@ using Application.Surveys.Dtos;
 using Application.Surveys.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace WebApi.Controllers
 {
@@ -26,6 +27,36 @@ namespace WebApi.Controllers
         public async Task<SurveyListViewModel> GetSurveys(CancellationToken cancellationToken)
         {
             return await sender.Send(new GetSurveysListQuery(), cancellationToken);
+        }
+
+        [HttpPost("start")]
+        public async Task<string> StartSurvey(StartOrCompleteSurveyModel model, CancellationToken cancellationToken)
+        {
+            model.UserId = Guid.Parse(User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value);
+
+            return await sender.Send(new StartSurveyCommand { Body = model }, cancellationToken);
+        }
+
+        [HttpPost("complete")]
+        public async Task<string> CompleteSurvey(StartOrCompleteSurveyModel model, CancellationToken cancellationToken)
+        {
+            model.UserId = Guid.Parse(User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value);
+
+            return await sender.Send(new CompleteSurveyCommand { Body = model }, cancellationToken);
+        }
+
+        [HttpGet("status/{surveyId}")]
+        public async Task<string> GetSurveyStatus([FromRoute] Guid surveyId, CancellationToken cancellationToken)
+        {
+            var userId = Guid.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value);
+
+            var query = new GetSurveyStatusQuery
+            { 
+                UserId = userId,
+                SurveyId = surveyId 
+            };
+
+            return await sender.Send(query, cancellationToken);
         }
     }
 }

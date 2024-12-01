@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Application.Surveys.Handlers
 {
     public class SurveyCommandsHandlers(ApplicationDbContext dbContext, ISurveyService surveyService)
-        : IRequestHandler<CreateSurveyCommand, string>, IRequestHandler<StartSurveyCommand, string>
+        : IRequestHandler<CreateSurveyCommand, string>, IRequestHandler<StartSurveyCommand, string>, IRequestHandler<CompleteSurveyCommand, string>
     {
         public async Task<string> Handle(CreateSurveyCommand request, CancellationToken cancellationToken)
         {
@@ -50,9 +50,9 @@ namespace Application.Surveys.Handlers
 
             var userSurveyInProgressBinds = await dbContext.UserSurveyBinds
                 .Where(x => x.UserId == user.Id && x.SurveyId == survey.Id && x.Status == SurveyStatusEnum.InProgress)
-                .ToListAsync(cancellationToken);
+                .FirstOrDefaultAsync(cancellationToken);
 
-            if (userSurveyInProgressBinds.Count != 0)
+            if (userSurveyInProgressBinds != null)
             {
                 throw new BusinessLogicException($"Завершите предыдущую попытку прежде чем начать новую!");
             }
@@ -65,10 +65,44 @@ namespace Application.Surveys.Handlers
                 StartedAt = DateTimeOffset.UtcNow
             };
 
-            var createdUserSurveyBind = await dbContext.UserSurveyBinds.AddAsync(userSurveyBindToCreate);
+            var createdUserSurveyBind = await dbContext.UserSurveyBinds.AddAsync(userSurveyBindToCreate, cancellationToken);
             await dbContext.SaveChangesAsync(cancellationToken);
 
             return createdUserSurveyBind.Entity.Id.ToString();
+        }
+
+        public async Task<string> Handle(CompleteSurveyCommand request, CancellationToken cancellationToken)
+        {
+            var user = await dbContext.Users
+                .Where(x => x.Id == request.Body.UserId)
+                .SingleOrDefaultAsync(cancellationToken);
+
+            if (user == null)
+            {
+                throw new ObjectNotFoundException($"Пользователь с идентификатором \"{request.Body.UserId}\" не найден!");
+            }
+
+            var survey = await surveyService.GetSurveyAsync(request.Body.SurveyId.ToString(), cancellationToken);
+
+            if (survey == null)
+            {
+                throw new ObjectNotFoundException($"Опрос с идентификатором \"{request.Body.SurveyId}\" не найден!");
+            }
+
+            var userSurveyInProgressBinds = await dbContext.UserSurveyBinds
+                .Where(x => x.UserId == user.Id && x.SurveyId == survey.Id && x.Status == SurveyStatusEnum.InProgress)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (userSurveyInProgressBinds == null)
+            {
+                throw new BusinessLogicException($"Вы еще не начали попытку!");
+            }
+
+            userSurveyInProgressBinds.Status = SurveyStatusEnum.Completed;
+            userSurveyInProgressBinds.CompletedAt = DateTimeOffset.UtcNow;
+            await dbContext.SaveChangesAsync();
+
+            return "Попытка завершена!";
         }
     }
 }

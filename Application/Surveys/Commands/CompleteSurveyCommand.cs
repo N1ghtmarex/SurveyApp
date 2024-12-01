@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Application.Surveys.Commands
 {
-    public class StartSurveyCommand : IRequest<string>
+    public class CompleteSurveyCommand : IRequest<string>
     {
         [FromBody]
         public required StartOrCompleteSurveyModel Body { get; set; }

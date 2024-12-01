@@ -1,5 +1,6 @@
 ﻿using Application.Choice.Commands;
 using Application.Choice.Dtos;
+using Application.Choice.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,6 +20,20 @@ namespace WebApi.Controllers
             model.UserId = Guid.Parse(userId);
 
             return await sender.Send(new AddChoiceCommand { Body = model }, cancellationToken);
+        }
+
+        [HttpGet("survey/{surveyId}")]
+        public async Task<ChoiceListViewModel> GetChoices([FromRoute] Guid surveyId, CancellationToken cancellationToken)
+        {
+            var userId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)!.Value;
+
+            var query = new GetChoicesQuery
+            {
+                UserId = Guid.Parse(userId),
+                SurveyId = surveyId
+            };
+
+            return await sender.Send(query, cancellationToken);
         }
     }
 }

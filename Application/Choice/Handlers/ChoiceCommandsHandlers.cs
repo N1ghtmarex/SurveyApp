@@ -30,13 +30,19 @@ namespace Application.Choice.Handlers
                 throw new ObjectNotFoundException($"Вариант ответа с идентификатором \"{request.Body.AnswerId}\" не найден!");
             }
 
-            var userChoicesIds = user.Choices
+            var questionAnswers = await dbContext.Answers
+                .Where(x => x.QuestionId == answer.QuestionId)
                 .Select(x => x.Id)
-                .ToList();
+                .ToListAsync(cancellationToken);
 
-            if (userChoicesIds.Contains(answer.Id))
+            var userChoices = await dbContext.Choices
+                .Where(x => questionAnswers.Contains(x.AnswerId))
+                .SingleOrDefaultAsync(cancellationToken);
+
+
+            if (userChoices != null)
             {
-                throw new BusinessLogicException($"Вы уже выбирали этот вариант ответа!");
+                dbContext.Remove(userChoices);
             }
 
             var choiceToCreate = new Domain.Entities.Choice

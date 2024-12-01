@@ -22,7 +22,8 @@ namespace Domain.EntityConfigurations
                 .WithMany(x => x.UserSurveyBinds)
                 .HasForeignKey(x => x.SurveyId);
 
-            builder.Property(x => x.CompletedAt).IsRequired(true);
+            builder.Property(x => x.StartedAt).IsRequired(true);
+            builder.Property(x => x.CompletedAt).IsRequired(false);
         }
     }
 }

@@ -26,9 +26,14 @@ namespace WebApi.Controllers
             {
                 var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, userId) };
 
-                ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Cookies");
+                var claimsIdentity = new ClaimsIdentity(claims, "Cookie");
+                var authProperties = new AuthenticationProperties
+                {
+                    IsPersistent = true,
+                };
 
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
 
                 return Ok();
             }

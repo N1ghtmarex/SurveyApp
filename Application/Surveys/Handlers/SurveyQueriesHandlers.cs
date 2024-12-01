@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Application.Surveys.Handlers
 {
     internal class SurveyQueriesHandlers(ApplicationDbContext dbContext, ISurveyService surveyService)
-        : IRequestHandler<GetSurveyQuery, SurveyViewModel>, IRequestHandler<GetSurveysListQuery, SurveyListViewModel>
+        : IRequestHandler<GetSurveyQuery, SurveyViewModel>, IRequestHandler<GetSurveysListQuery, SurveyListViewModel>, IRequestHandler<GetSurveyStatusQuery, string>
     {
         public async Task<SurveyViewModel> Handle(GetSurveyQuery request, CancellationToken cancellationToken)
         {
@@ -35,6 +35,36 @@ namespace Application.Surveys.Handlers
                 .ToListAsync(cancellationToken);
 
             return new SurveyListViewModel { Surveys = surveys };
+        }
+
+        public async Task<string> Handle(GetSurveyStatusQuery request, CancellationToken cancellationToken)
+        {
+            var user = await dbContext.Users
+                .Where(x => x.Id == request.UserId)
+                .SingleOrDefaultAsync(cancellationToken);
+
+            if (user == null)
+            {
+                throw new ObjectNotFoundException($"Пользователь с идентификатором \"{request.UserId}\" не найден!");
+            }
+
+            var survey = await surveyService.GetSurveyAsync(request.SurveyId.ToString(), cancellationToken);
+
+            if (survey == null)
+            {
+                throw new ObjectNotFoundException($"Опрос с идентификатором \"{request.SurveyId}\" не найден!");
+            }
+
+            var userSurveyBind = await dbContext.UserSurveyBinds
+                .Where(x => x.UserId == user.Id && x.SurveyId == survey.Id)
+                .SingleOrDefaultAsync(cancellationToken);
+
+            if (userSurveyBind == null)
+            {
+                return "Опрос не начат";
+            }
+            
+            return userSurveyBind.Status.ToString();
         }
     }
 }

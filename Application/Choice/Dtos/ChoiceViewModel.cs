@@ -1,9 +1,7 @@
 ﻿namespace Application.Choice.Dtos
 {
-    public class AddChoiceModel
+    public class ChoiceViewModel
     {
-        public Guid? UserId { get; set; }
-
         public required Guid AnswerId { get; set; }
     }
 }
