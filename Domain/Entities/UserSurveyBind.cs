@@ -1,7 +1,13 @@
-﻿namespace Domain.Entities
+﻿using Domain.Enums;
+
+namespace Domain.Entities
 {
     public class UserSurveyBind : BaseEntity<Guid>
     {
+        /// <summary>
+        /// Статус опроса
+        /// </summary>
+        public required SurveyStatusEnum Status { get; set; }
         /// <summary>
         /// Идентификатор пользователя
         /// </summary>
