@@ -9,10 +9,10 @@
         public User? User { get; set; }
 
         /// <summary>
-        /// Идентификатор теста
+        /// Идентификатор опроса
         /// </summary>
-        public required Guid TestId { get; set; }
-        public Survey? Test { get; set; }
+        public required Guid SurveyId { get; set; }
+        public Survey? Survey { get; set; }
 
         /// <summary>
         /// Ответы

@@ -17,10 +17,10 @@ namespace Domain.EntityConfigurations
                 .WithMany(x => x.UserSurveyBinds)
                 .HasForeignKey(x => x.UserId);
 
-            builder.Property(x => x.TestId).IsRequired(true);
-            builder.HasOne(x => x.Test)
+            builder.Property(x => x.SurveyId).IsRequired(true);
+            builder.HasOne(x => x.Survey)
                 .WithMany(x => x.UserSurveyBinds)
-                .HasForeignKey(x => x.TestId);
+                .HasForeignKey(x => x.SurveyId);
 
             builder.Property(x => x.CompletedAt).IsRequired(true);
         }
