@@ -21,6 +21,10 @@ namespace Application.Answers.Handlers
                 throw new ObjectNotFoundException($"Вопрос с идентификатором \"{request.Body.QuestionId}\" не найден!");
             }
 
+            var survey = await dbContext.Surveys
+                .Where(x => x.Id == question.SurveyId)
+                .SingleOrDefaultAsync(cancellationToken);
+
             var answerToCreate = new Answer
             {
                 QuestionId = question.Id,
@@ -28,6 +32,7 @@ namespace Application.Answers.Handlers
             };
 
             var createdAnswer = await dbContext.AddAsync(answerToCreate, cancellationToken);
+            dbContext.Entry(survey).State = EntityState.Modified;
             await dbContext.SaveChangesAsync(cancellationToken);
 
             return createdAnswer.Entity.Id.ToString();

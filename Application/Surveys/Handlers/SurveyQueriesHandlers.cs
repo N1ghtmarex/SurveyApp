@@ -6,11 +6,12 @@ using Common.Exceptions;
 using Domain;
 using Mapster;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Surveys.Handlers
 {
     internal class SurveyQueriesHandlers(ApplicationDbContext dbContext, ISurveyService surveyService)
-        : IRequestHandler<GetSurveyQuery, SurveyViewModel>
+        : IRequestHandler<GetSurveyQuery, SurveyViewModel>, IRequestHandler<GetSurveysListQuery, SurveyListViewModel>
     {
         public async Task<SurveyViewModel> Handle(GetSurveyQuery request, CancellationToken cancellationToken)
         {
@@ -25,6 +26,15 @@ namespace Application.Surveys.Handlers
             }
 
             return survey.Adapt<SurveyViewModel>();
+        }
+
+        public async Task<SurveyListViewModel> Handle(GetSurveysListQuery request, CancellationToken cancellationToken)
+        {
+            var surveys = await dbContext.Surveys
+                .ProjectToType<SurveyViewModel>()
+                .ToListAsync(cancellationToken);
+
+            return new SurveyListViewModel { Surveys = surveys };
         }
     }
 }

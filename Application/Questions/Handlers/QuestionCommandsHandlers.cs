@@ -4,6 +4,7 @@ using Common.Exceptions;
 using Domain;
 using Domain.Entities;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Questions.Handlers
 {
@@ -27,6 +28,8 @@ namespace Application.Questions.Handlers
             };
             
             var createdQuestion = await dbContext.AddAsync(questionToCreate, cancellationToken);
+            dbContext.Entry(survey).State = EntityState.Modified;
+
             await dbContext.SaveChangesAsync();
 
             return questionToCreate.Id.ToString();

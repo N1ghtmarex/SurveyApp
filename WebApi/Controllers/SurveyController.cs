@@ -3,7 +3,6 @@ using Application.Surveys.Dtos;
 using Application.Surveys.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace WebApi.Controllers
 {
@@ -21,6 +20,12 @@ namespace WebApi.Controllers
         public async Task<SurveyViewModel> GetSurvey(GetSurveyQuery query, CancellationToken cancellationToken)
         {
             return await sender.Send(query, cancellationToken);
+        }
+
+        [HttpGet]
+        public async Task<SurveyListViewModel> GetSurveys(CancellationToken cancellationToken)
+        {
+            return await sender.Send(new GetSurveysListQuery(), cancellationToken);
         }
     }
 }
