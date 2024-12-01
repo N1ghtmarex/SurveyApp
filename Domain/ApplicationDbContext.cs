@@ -11,7 +11,7 @@ namespace Domain
         public DbSet<Question> Questions { get; set; }
         public DbSet<Survey> Surveys { get; set; }
         public DbSet<User> Users { get; set; }
-        public DbSet<UserSurveyBind> UsersTestBinds { get; set; }
+        public DbSet<UserSurveyBind> UserSurveyBinds { get; set; }
         public DbSet<Choice> Choices { get; set; }
 
         public override int SaveChanges(bool acceptAllChangesOnSuccess)

@@ -23,11 +23,16 @@ namespace Domain.Entities
         /// <summary>
         /// Ответы
         /// </summary>
-        public required ICollection<Answer> Answers { get; set; }
+        public ICollection<Answer>? Answers { get; set; }
+
+        /// <summary>
+        /// Время начала
+        /// </summary>
+        public required DateTimeOffset StartedAt { get; set; }
 
         /// <summary>
         /// Время завершения
         /// </summary>
-        public required DateTimeOffset CompletedAt { get; set; }
+        public DateTimeOffset? CompletedAt { get; set; }
     }
 }
