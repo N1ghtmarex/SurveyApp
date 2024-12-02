@@ -65,6 +65,10 @@ namespace Domain.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("answer_id");
 
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("question_id");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid")
                         .HasColumnName("user_id");
@@ -74,6 +78,9 @@ namespace Domain.Migrations
 
                     b.HasIndex("AnswerId")
                         .HasDatabaseName("ix_choice_answer_id");
+
+                    b.HasIndex("QuestionId")
+                        .HasDatabaseName("ix_choice_question_id");
 
                     b.HasIndex("UserId")
                         .HasDatabaseName("ix_choice_user_id");
@@ -254,6 +261,13 @@ namespace Domain.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_choice_answer_answer_id");
 
+                    b.HasOne("Domain.Entities.Question", "Question")
+                        .WithMany()
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_choice_questions_question_id");
+
                     b.HasOne("Domain.Entities.User", "User")
                         .WithMany("Choices")
                         .HasForeignKey("UserId")
@@ -262,6 +276,8 @@ namespace Domain.Migrations
                         .HasConstraintName("fk_choice_users_user_id");
 
                     b.Navigation("Answer");
+
+                    b.Navigation("Question");
 
                     b.Navigation("User");
                 });

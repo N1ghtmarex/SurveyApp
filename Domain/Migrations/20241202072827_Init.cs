@@ -124,6 +124,7 @@ namespace Domain.Migrations
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    question_id = table.Column<Guid>(type: "uuid", nullable: false),
                     answer_id = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
@@ -133,6 +134,12 @@ namespace Domain.Migrations
                         name: "fk_choice_answer_answer_id",
                         column: x => x.answer_id,
                         principalTable: "answer",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_choice_questions_question_id",
+                        column: x => x.question_id,
+                        principalTable: "question",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -157,6 +164,11 @@ namespace Domain.Migrations
                 name: "ix_choice_answer_id",
                 table: "choice",
                 column: "answer_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_choice_question_id",
+                table: "choice",
+                column: "question_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_choice_user_id",

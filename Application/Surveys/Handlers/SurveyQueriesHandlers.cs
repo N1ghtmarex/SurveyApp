@@ -11,7 +11,8 @@ using Microsoft.EntityFrameworkCore;
 namespace Application.Surveys.Handlers
 {
     internal class SurveyQueriesHandlers(ApplicationDbContext dbContext, ISurveyService surveyService)
-        : IRequestHandler<GetSurveyQuery, SurveyViewModel>, IRequestHandler<GetSurveysListQuery, SurveyListViewModel>, IRequestHandler<GetSurveyStatusQuery, string>
+        : IRequestHandler<GetSurveyQuery, SurveyViewModel>, IRequestHandler<GetSurveysListQuery, SurveyListViewModel>, IRequestHandler<GetSurveyStatusQuery, string>,
+        IRequestHandler<GetUserSurveyBindQuery, UserSurveyBindViewModel>
     {
         public async Task<SurveyViewModel> Handle(GetSurveyQuery request, CancellationToken cancellationToken)
         {
@@ -65,6 +66,21 @@ namespace Application.Surveys.Handlers
             }
             
             return userSurveyBind.Status.ToString();
+        }
+
+        public async Task<UserSurveyBindViewModel> Handle(GetUserSurveyBindQuery request, CancellationToken cancellationToken)
+        {
+            var userSurveyBind = await dbContext.UserSurveyBinds
+                .Where(x => x.SurveyId == request.SurveyId && x.UserId == request.UserId)
+                .ProjectToType<UserSurveyBindViewModel>()
+                .SingleOrDefaultAsync(cancellationToken);
+
+            if (userSurveyBind == null)
+            {
+                throw new ObjectNotFoundException();
+            }
+
+            return userSurveyBind;
         }
     }
 }

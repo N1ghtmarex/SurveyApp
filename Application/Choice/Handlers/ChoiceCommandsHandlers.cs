@@ -49,6 +49,7 @@ namespace Application.Choice.Handlers
             {
                 UserId = user.Id,
                 AnswerId = answer.Id,
+                QuestionId = answer.QuestionId,
             };
 
             var createdChoice = await dbContext.Choices.AddAsync(choiceToCreate, cancellationToken);

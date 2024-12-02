@@ -7,6 +7,6 @@ namespace Application.Surveys.Commands
     public class CreateSurveyCommand : IRequest<string>
     {
         [FromBody]
-        public required CreateSurveyModel Body { get; set; }
+        public required CreateOnlySurveyModel Body { get; set; }
     }
 }

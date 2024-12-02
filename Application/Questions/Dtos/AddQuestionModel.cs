@@ -1,4 +1,5 @@
-﻿using Domain.Enums;
+﻿using Application.Answers.Dtos;
+using Domain.Enums;
 
 namespace Application.Questions.Dtos
 {
@@ -21,5 +22,6 @@ namespace Application.Questions.Dtos
         /// Тип вопроса
         /// </summary>
         public required QuestionTypeEnum Type { get; set; }
+        public required List<AddAnswerModel> Answers { get; set; }
     }
 }

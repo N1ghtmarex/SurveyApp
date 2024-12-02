@@ -1,6 +1,7 @@
 ﻿using Application.Surveys.Commands;
 using Application.Surveys.Dtos;
 using Application.Surveys.Queries;
+using Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -54,6 +55,20 @@ namespace WebApi.Controllers
             { 
                 UserId = userId,
                 SurveyId = surveyId 
+            };
+
+            return await sender.Send(query, cancellationToken);
+        }
+
+        [HttpGet("bind/{surveyId}")]
+        public async Task<UserSurveyBindViewModel> GetUserSurveyBind([FromRoute] Guid surveyId, CancellationToken cancellationToken)
+        {
+            var userId = Guid.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value);
+
+            var query = new GetUserSurveyBindQuery
+            {
+                UserId = userId,
+                SurveyId = surveyId
             };
 
             return await sender.Send(query, cancellationToken);
