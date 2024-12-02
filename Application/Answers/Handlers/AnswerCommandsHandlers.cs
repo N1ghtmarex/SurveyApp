@@ -13,12 +13,12 @@ namespace Application.Answers.Handlers
         public async Task<string> Handle(AddAnswerCommand request, CancellationToken cancellationToken)
         {
             var question = await dbContext.Questions
-                .Where(x => x.Id == Guid.Parse(request.Body.QuestionId))
+                .Where(x => x.Title == request.Body.Title)
                 .SingleOrDefaultAsync(cancellationToken);
 
             if (question == null)
             {
-                throw new ObjectNotFoundException($"Вопрос с идентификатором \"{request.Body.QuestionId}\" не найден!");
+                throw new ObjectNotFoundException($"Вопрос с идентификатором \"{request.Body.Title}\" не найден!");
             }
 
             var survey = await dbContext.Surveys

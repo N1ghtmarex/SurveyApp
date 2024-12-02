@@ -35,6 +35,11 @@ namespace WebApi.Controllers
 
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
 
+                HttpContext.Response.Cookies.Append("auth_status", "true", new CookieOptions
+                {
+                    HttpOnly = false,
+                });
+
                 return Ok();
             }
 
@@ -45,6 +50,9 @@ namespace WebApi.Controllers
         public async Task<ActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            HttpContext.Response.Cookies.Delete("auth_status");
+
             return NoContent();
         }
     }

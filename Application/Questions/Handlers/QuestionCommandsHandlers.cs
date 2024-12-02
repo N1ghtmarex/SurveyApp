@@ -13,11 +13,11 @@ namespace Application.Questions.Handlers
     {
         public async Task<string> Handle(AddQuestionCommand request, CancellationToken cancellationToken)
         {
-            var survey = await surveyService.GetSurveyAsync(request.Body.SurveyId, cancellationToken);
+            var survey = await surveyService.GetSurveyAsync(Guid.NewGuid().ToString(), cancellationToken);
 
             if (survey == null)
             {
-                throw new ObjectNotFoundException($"Опрос с идентификатором \"{request.Body.SurveyId}\" не найден!");
+                throw new ObjectNotFoundException($"Опрос с идентификатором \"\" не найден!");
             }
 
             var questionToCreate = new Question

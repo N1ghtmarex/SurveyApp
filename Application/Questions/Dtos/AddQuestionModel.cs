@@ -8,10 +8,6 @@ namespace Application.Questions.Dtos
     /// </summary>
     public class AddQuestionModel
     {
-        /// <summary>
-        /// Идентификатор опроса, к которому относится вопрос
-        /// </summary>
-        public required string SurveyId { get; set; }
 
         /// <summary>
         /// Текст вопроса

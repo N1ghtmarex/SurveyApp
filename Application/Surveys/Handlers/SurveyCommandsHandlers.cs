@@ -1,4 +1,6 @@
 ﻿using Application.Abstractions.Interfaces;
+using Application.Answers;
+using Application.Questions;
 using Application.Surveys.Commands;
 using Common.Exceptions;
 using Domain;
@@ -9,23 +11,38 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Surveys.Handlers
 {
-    public class SurveyCommandsHandlers(ApplicationDbContext dbContext, ISurveyService surveyService)
+    public class SurveyCommandsHandlers(ApplicationDbContext dbContext, ISurveyService surveyService,
+        IQuestionMapper questionMapper, IAnswerMapper answerMapper)
         : IRequestHandler<CreateSurveyCommand, string>, IRequestHandler<StartSurveyCommand, string>, IRequestHandler<CompleteSurveyCommand, string>
     {
         public async Task<string> Handle(CreateSurveyCommand request, CancellationToken cancellationToken)
         {
             var surveyToCreate = new Survey
-            {
-                Name = request.Body.Name
+            { 
+                Name = request.Body.Name,
+                Description = request.Body.Description,
             };
 
-            if (request.Body.Description != null)
+            var createdSurvey = await dbContext.AddAsync(surveyToCreate);
+
+            var questions = request.Body.Questions
+                .Select(x => questionMapper.MapToEntity((x, createdSurvey.Entity.Id)))
+                .ToList();
+
+            await dbContext.AddRangeAsync(questions, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
+
+
+            for (var i = 0; i < questions.Count; i++)
             {
-                surveyToCreate.Description = request.Body.Description;
+                var answersToCreate = request.Body.Questions[i].Answers.ToList();
+
+                var answers = answersToCreate.Select(x => answerMapper.MapToEntity((x, questions[i].Id)));
+
+                await dbContext.AddRangeAsync(answers, cancellationToken);
             }
 
-            var createdSurvey = await dbContext.AddAsync(surveyToCreate);
-            await dbContext.SaveChangesAsync();
+            await dbContext.SaveChangesAsync(cancellationToken);
 
             return createdSurvey.Entity.Id.ToString();
         }
