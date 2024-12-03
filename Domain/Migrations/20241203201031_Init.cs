@@ -98,8 +98,7 @@ namespace Domain.Migrations
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     question_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    title = table.Column<string>(type: "text", nullable: false),
-                    user_survey_bind_id = table.Column<Guid>(type: "uuid", nullable: true)
+                    title = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -110,11 +109,6 @@ namespace Domain.Migrations
                         principalTable: "question",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "fk_answer_user_survey_binds_user_survey_bind_id",
-                        column: x => x.user_survey_bind_id,
-                        principalTable: "user_survey_bind",
-                        principalColumn: "id");
                 });
 
             migrationBuilder.CreateTable(
@@ -153,11 +147,6 @@ namespace Domain.Migrations
                 name: "ix_answer_question_id",
                 table: "answer",
                 column: "question_id");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_answer_user_survey_bind_id",
-                table: "answer",
-                column: "user_survey_bind_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_choice_answer_id",
@@ -203,19 +192,19 @@ namespace Domain.Migrations
                 name: "choice");
 
             migrationBuilder.DropTable(
+                name: "user_survey_bind");
+
+            migrationBuilder.DropTable(
                 name: "answer");
+
+            migrationBuilder.DropTable(
+                name: "user");
 
             migrationBuilder.DropTable(
                 name: "question");
 
             migrationBuilder.DropTable(
-                name: "user_survey_bind");
-
-            migrationBuilder.DropTable(
                 name: "survey");
-
-            migrationBuilder.DropTable(
-                name: "user");
         }
     }
 }
