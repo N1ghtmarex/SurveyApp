@@ -1,4 +1,5 @@
-﻿using Application.Choice.Commands;
+﻿using Application.Abstractions.Models;
+using Application.Choice.Commands;
 using Application.Choice.Dtos;
 using Application.Choice.Queries;
 using MediatR;
@@ -8,21 +9,43 @@ using System.Security.Claims;
 
 namespace WebApi.Controllers
 {
+    /// <summary>
+    /// Контроллер выбора ответа
+    /// </summary>
+    /// <param name="sender">Mediatr</param>
     [ApiController]
     [Route("api/choice")]
     public class ChoiceController(ISender sender) : ControllerBase
     {
+        /// <summary>
+        /// Выбор варианта ответа
+        /// </summary>
+        /// <param name="model">Модель запроса</param>
+        /// <param name="cancellationToken">Токен отмены</param>
+        /// <returns>Идентификатор ответа пользователя</returns>
         [HttpPost]
         [Authorize]
-        public async Task<string> MakeChoice(AddChoiceModel model, CancellationToken cancellationToken)
+        public async Task<CreatedOrUpdatedEntityViewModel<Guid>> MakeChoice([FromBody] AddChoiceModel model, CancellationToken cancellationToken)
         {
-            var userId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)!.Value;
-            model.UserId = Guid.Parse(userId);
+            var userId = Guid.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)!.Value);
 
-            return await sender.Send(new AddChoiceCommand { Body = model }, cancellationToken);
+            var command = new AddChoiceCommand
+            {
+                UserId = userId,
+                AnswerId = model.AnswerId,
+            };
+
+            return await sender.Send(command, cancellationToken);
         }
 
+        /// <summary>
+        /// Получение ответов пользователя
+        /// </summary>
+        /// <param name="surveyId">Идентификатор опроса</param>
+        /// <param name="cancellationToken">Токен отмены</param>
+        /// <returns>Список ответов</returns>
         [HttpGet("survey/{surveyId}")]
+        [Authorize]
         public async Task<ChoiceListViewModel> GetChoices([FromRoute] Guid surveyId, CancellationToken cancellationToken)
         {
             var userId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)!.Value;

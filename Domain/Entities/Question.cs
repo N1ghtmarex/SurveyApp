@@ -3,6 +3,9 @@ using Domain.Enums;
 
 namespace Domain.Entities
 {
+    /// <summary>
+    /// Вопрос
+    /// </summary>
     public class Question : BaseEntity<Guid>, IHaveDateTrack, IHaveDeleteTrack
     {
         /// <summary>

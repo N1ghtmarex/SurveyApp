@@ -12,11 +12,10 @@ namespace Application.Choice.Handlers
     {
         public async Task<ChoiceListViewModel> Handle(GetChoicesQuery request, CancellationToken cancellationToken)
         {
-            /////////////////////////
             var choices = await dbContext.Choices
                 .Include(x => x.Answer)
-                    .ThenInclude(x => x.Question)
-                .Where(x => x.UserId == request.UserId && x.Answer.Question.SurveyId == request.SurveyId)
+                    .ThenInclude(x => x!.Question)
+                .Where(x => x.UserId == request.UserId && x.Answer!.Question!.SurveyId == request.SurveyId)
                 .ProjectToType<ChoiceViewModel>()
                 .ToListAsync(cancellationToken);
 

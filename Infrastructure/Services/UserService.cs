@@ -7,11 +7,16 @@ namespace Infrastructure.Services
 {
     public class UserService(ApplicationDbContext dbContext) : IUserService
     {
-        public async Task<User?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken)
+        public async Task<User?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken, bool includeChoice = false)
         {
-            var user = await dbContext.Users.
-                Where(x => x.Id == id)
-                .SingleOrDefaultAsync(cancellationToken);
+            var query = dbContext.Users.
+                Where(x => x.Id == id);
+
+            if (includeChoice) {
+                query = query.Include(x => x.Choices);
+            }
+
+            var user = await query.SingleOrDefaultAsync(cancellationToken);
 
             return user;
         }

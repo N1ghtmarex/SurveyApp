@@ -15,11 +15,13 @@ namespace Domain.EntityConfigurations
             builder.Property(x => x.UserId).IsRequired(true);
             builder.HasOne(x => x.User)
                 .WithMany(x => x.UserSurveyBinds)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasForeignKey(x => x.UserId);
 
             builder.Property(x => x.SurveyId).IsRequired(true);
             builder.HasOne(x => x.Survey)
                 .WithMany(x => x.UserSurveyBinds)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasForeignKey(x => x.SurveyId);
 
             builder.Property(x => x.StartedAt).IsRequired(true);

@@ -1,5 +1,8 @@
 ﻿namespace Application.Users.Dtos
 {
+    /// <summary>
+    /// Модель авторизации пользователя
+    /// </summary>
     public class AuthUserModel
     {
         /// <summary>

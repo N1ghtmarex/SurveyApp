@@ -2,12 +2,16 @@
 
 namespace Domain.Entities
 {
+    /// <summary>
+    /// Связь пользователя и опроса
+    /// </summary>
     public class UserSurveyBind : BaseEntity<Guid>
     {
         /// <summary>
         /// Статус опроса
         /// </summary>
         public required SurveyStatusEnum Status { get; set; }
+
         /// <summary>
         /// Идентификатор пользователя
         /// </summary>

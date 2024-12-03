@@ -1,9 +1,8 @@
 ﻿using Application.Abstractions.Interfaces;
+using Application.Abstractions.Models;
 using Application.Answers.Commands;
 using Common.Exceptions;
 using Domain;
-using Domain.Entities;
-using Mapster;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,9 +10,10 @@ namespace Application.Answers.Handlers
 {
     internal class AnswerCommandsHandlers(ApplicationDbContext dbContext, IQuestionService questionService, ISurveyService surveyService, IAnswerMapper answerMapper,
         IAnswerService answerService)
-        : IRequestHandler<AddAnswerCommand, string>, IRequestHandler<UpdateAnswerCommand>, IRequestHandler<DeleteAnswerCommand>
+        : IRequestHandler<AddAnswerCommand, CreatedOrUpdatedEntityViewModel<Guid>>, IRequestHandler<UpdateAnswerCommand, CreatedOrUpdatedEntityViewModel<Guid>>,
+        IRequestHandler<DeleteAnswerCommand>
     {
-        public async Task<string> Handle(AddAnswerCommand request, CancellationToken cancellationToken)
+        public async Task<CreatedOrUpdatedEntityViewModel<Guid>> Handle(AddAnswerCommand request, CancellationToken cancellationToken)
         {
             var question = await questionService.GetQuestionAsync(request.Body.QuestionId, cancellationToken);
 
@@ -36,10 +36,10 @@ namespace Application.Answers.Handlers
             dbContext.Entry(survey).State = EntityState.Modified;
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return createdAnswer.Entity.Id.ToString();
+            return new CreatedOrUpdatedEntityViewModel(createdAnswer.Entity.Id);
         }
 
-        public async Task Handle(UpdateAnswerCommand request, CancellationToken cancellationToken)
+        public async Task<CreatedOrUpdatedEntityViewModel<Guid>> Handle(UpdateAnswerCommand request, CancellationToken cancellationToken)
         {
             var answer = await answerService.GetAnswerAsync(request.Body.Id, cancellationToken);
 
@@ -65,6 +65,8 @@ namespace Application.Answers.Handlers
             answer.Title = request.Body.Title;
             surveyService.UpdateEntityStatus(survey);
             await dbContext.SaveChangesAsync(cancellationToken);
+
+            return new CreatedOrUpdatedEntityViewModel(answer.Id);
         }
 
         public async Task Handle(DeleteAnswerCommand request, CancellationToken cancellationToken)

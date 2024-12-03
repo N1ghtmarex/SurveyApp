@@ -5,6 +5,8 @@ using Infrastructure;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using WebApi.Middleware;
+using System.Xml.Linq;
+using System.Xml.XPath;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,18 +15,19 @@ builder.Services.RegisterUseCasesService();
 builder.Services.RegisterCommonServices();
 builder.Services.RegisterInfrastructureServices();
 
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+Directory
+    .GetFiles(AppContext.BaseDirectory, "*.xml", SearchOption.TopDirectoryOnly)
+    .ToList()
+    .ForEach(xmlFile =>
+    {
+        var doc = XDocument.Load(xmlFile);
+        options.IncludeXmlComments(() => new XPathDocument(doc.CreateReader()), includeControllerXmlComments: true);
+    });
+});
 
 builder.Services.AddEndpointsApiExplorer();
-
-builder.Services.ConfigureApplicationCookie(options =>
-{
-    options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-    options.Cookie.SameSite = SameSiteMode.None;
-    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
-    options.SlidingExpiration = true;
-});
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie();
@@ -62,7 +65,6 @@ app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
 
-app.MapGet("/", [Authorize] () => "Hello World!");
 app.MapControllers();
 
 app.Run();

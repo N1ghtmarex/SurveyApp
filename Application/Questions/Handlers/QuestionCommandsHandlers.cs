@@ -1,4 +1,5 @@
 ﻿using Application.Abstractions.Interfaces;
+using Application.Abstractions.Models;
 using Application.Questions.Commands;
 using Common.Exceptions;
 using Domain;
@@ -9,9 +10,9 @@ using Microsoft.EntityFrameworkCore;
 namespace Application.Questions.Handlers
 {
     internal class QuestionCommandsHandlers(ApplicationDbContext dbContext, ISurveyService surveyService)
-        : IRequestHandler<AddQuestionCommand, string>, IRequestHandler<UpdateQuestionCommand>, IRequestHandler<DeleteQuestionCommand>
+        : IRequestHandler<AddQuestionCommand, CreatedOrUpdatedEntityViewModel<Guid>>, IRequestHandler<UpdateQuestionCommand, CreatedOrUpdatedEntityViewModel<Guid>>, IRequestHandler<DeleteQuestionCommand>
     {
-        public async Task<string> Handle(AddQuestionCommand request, CancellationToken cancellationToken)
+        public async Task<CreatedOrUpdatedEntityViewModel<Guid>> Handle(AddQuestionCommand request, CancellationToken cancellationToken)
         {
 
             var survey = await surveyService.GetSurveyAsync(request.Body.SurveyId, cancellationToken);
@@ -33,10 +34,10 @@ namespace Application.Questions.Handlers
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return questionToCreate.Id.ToString();
+            return new CreatedOrUpdatedEntityViewModel(createdQuestion.Entity.Id);
         }
 
-        public async Task Handle(UpdateQuestionCommand request, CancellationToken cancellationToken)
+        public async Task<CreatedOrUpdatedEntityViewModel<Guid>> Handle(UpdateQuestionCommand request, CancellationToken cancellationToken)
         {
             var question = await dbContext.Questions
                 .Where(x => x.Id == request.Body.Id)
@@ -51,6 +52,8 @@ namespace Application.Questions.Handlers
             question.Type = request.Body.Type;
 
             await dbContext.SaveChangesAsync(cancellationToken);
+
+            return new CreatedOrUpdatedEntityViewModel(question.Id);
         }
 
         public async Task Handle(DeleteQuestionCommand request, CancellationToken cancellationToken)

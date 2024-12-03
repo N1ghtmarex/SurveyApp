@@ -2,12 +2,21 @@
 
 namespace Domain.Enums
 {
+    /// <summary>
+    /// Тип вопроса
+    /// </summary>
     public enum QuestionTypeEnum
     {
-        [Description("Вопрос с одним правильным ответом")]
+        /// <summary>
+        /// Один ответ
+        /// </summary>
+        [Description("Вопрос с выбором одного ответа")]
         OneAnswer = 0,
 
-        [Description("Вопрос с несколькими правильными ответами")]
+        /// <summary>
+        /// Несколько ответов
+        /// </summary>
+        [Description("Вопрос с выбором нескольких ответов")]
         MultipleAnswer = 1
     }
 }

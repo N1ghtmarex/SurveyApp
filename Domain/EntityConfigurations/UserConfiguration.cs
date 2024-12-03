@@ -11,6 +11,12 @@ namespace Domain.EntityConfigurations
             builder.ToTable("user");
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).IsRequired(true);
+
+            builder.Property(x => x.Username).IsRequired(true);
+            builder.HasIndex(x => x.Username).IsUnique(true);
+
+            builder.Property(x => x.PasswordHash).IsRequired(true);
+            builder.Property(x => x.PasswordSalt).IsRequired(true);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Application.Abstractions.Interfaces;
+using Application.Abstractions.Models;
 using Application.Answers;
 using Application.Questions;
 using Application.Surveys.Commands;
@@ -7,16 +8,15 @@ using Domain;
 using Domain.Entities;
 using Domain.Enums;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace Application.Surveys.Handlers
 {
     public class SurveyCommandsHandlers(ApplicationDbContext dbContext, ISurveyService surveyService, ISurveyMapper surveyMapper,
         IQuestionMapper questionMapper, IAnswerMapper answerMapper, IUserService userService)
-        : IRequestHandler<CreateSurveyCommand, string>, IRequestHandler<StartSurveyCommand, string>, IRequestHandler<CompleteSurveyCommand, string>,
-        IRequestHandler<UpdateSurveyCommand>, IRequestHandler<DeleteSurveyCommand>
+        : IRequestHandler<CreateSurveyCommand, CreatedOrUpdatedEntityViewModel<Guid>>, IRequestHandler<StartSurveyCommand>, IRequestHandler<CompleteSurveyCommand>,
+        IRequestHandler<UpdateSurveyCommand, CreatedOrUpdatedEntityViewModel<Guid>>, IRequestHandler<DeleteSurveyCommand>
     {
-        public async Task<string> Handle(CreateSurveyCommand request, CancellationToken cancellationToken)
+        public async Task<CreatedOrUpdatedEntityViewModel<Guid>> Handle(CreateSurveyCommand request, CancellationToken cancellationToken)
         {
             var surveyToCreate = new Survey
             { 
@@ -26,29 +26,34 @@ namespace Application.Surveys.Handlers
 
             var createdSurvey = await dbContext.AddAsync(surveyToCreate);
 
-            var questions = request.Body.Questions
+            var questionsToCreate = request.Body.Questions
                 .Select(x => questionMapper.MapToEntity((x, createdSurvey.Entity.Id)))
                 .ToList();
 
-            await dbContext.AddRangeAsync(questions, cancellationToken);
+            await dbContext.AddRangeAsync(questionsToCreate, cancellationToken);
             await dbContext.SaveChangesAsync(cancellationToken);
 
 
-            for (var i = 0; i < questions.Count; i++)
+            for (var i = 0; i < questionsToCreate.Count; i++)
             {
-                var answersToCreate = request.Body.Questions[i].Answers.ToList();
+                var answers = request.Body.Questions[i].Answers;
 
-                var answers = answersToCreate.Select(x => answerMapper.MapToEntity((x, questions[i].Id)));
+                if (answers == null)
+                {
+                    continue;
+                }
 
-                await dbContext.AddRangeAsync(answers, cancellationToken);
+                var answersToCreate = answers.Select(x => answerMapper.MapToEntity((x, questionsToCreate[i].Id))).ToList();
+
+                await dbContext.AddRangeAsync(answersToCreate, cancellationToken);
             }
 
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return createdSurvey.Entity.Id.ToString();
+            return new CreatedOrUpdatedEntityViewModel(createdSurvey.Entity.Id);
         }
 
-        public async Task<string> Handle(StartSurveyCommand request, CancellationToken cancellationToken)
+        public async Task Handle(StartSurveyCommand request, CancellationToken cancellationToken)
         {
             var user = await userService.GetUserByIdAsync(request.Body.UserId, cancellationToken);
 
@@ -75,11 +80,9 @@ namespace Application.Surveys.Handlers
 
             var createdUserSurveyBind = await dbContext.UserSurveyBinds.AddAsync(userSurveyBindToCreate, cancellationToken);
             await dbContext.SaveChangesAsync(cancellationToken);
-
-            return createdUserSurveyBind.Entity.Id.ToString();
         }
 
-        public async Task<string> Handle(CompleteSurveyCommand request, CancellationToken cancellationToken)
+        public async Task Handle(CompleteSurveyCommand request, CancellationToken cancellationToken)
         {
             var user = await userService.GetUserByIdAsync(request.Body.UserId, cancellationToken);
 
@@ -105,11 +108,9 @@ namespace Application.Surveys.Handlers
             userSurveyInProgressBinds.Status = SurveyStatusEnum.Completed;
             userSurveyInProgressBinds.CompletedAt = DateTimeOffset.UtcNow;
             await dbContext.SaveChangesAsync();
-
-            return "Попытка завершена!";
         }
 
-        public async Task Handle(UpdateSurveyCommand request, CancellationToken cancellationToken)
+        public async Task<CreatedOrUpdatedEntityViewModel<Guid>> Handle(UpdateSurveyCommand request, CancellationToken cancellationToken)
         {
             var survey = await surveyService.GetSurveyAsync(request.Body.Id, cancellationToken);
 
@@ -122,6 +123,8 @@ namespace Application.Surveys.Handlers
             survey.Description = request.Body.Description;
 
             await dbContext.SaveChangesAsync(cancellationToken);
+
+            return new CreatedOrUpdatedEntityViewModel(survey.Id);
         }
 
         public async Task Handle(DeleteSurveyCommand request, CancellationToken cancellationToken)

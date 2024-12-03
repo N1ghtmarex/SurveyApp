@@ -1,10 +1,18 @@
-﻿using Application.Choice.Dtos;
+﻿using Application.Abstractions.Models;
+using Application.Choice.Dtos;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel;
 
 namespace Application.Choice.Commands
 {
-    public class AddChoiceCommand : IRequest<string>
+    [Description("Выбор варианта ответа")]
+    public class AddChoiceCommand : IRequest<CreatedOrUpdatedEntityViewModel<Guid>>
     {
-        public required AddChoiceModel Body { get; set; }
+        /// <summary>
+        /// Тело запроса
+        /// </summary>
+        public required Guid UserId { get; set; }
+        public required Guid AnswerId { get; set; }
     }
 }

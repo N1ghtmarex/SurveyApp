@@ -2,10 +2,7 @@
 using Application.Answers.Dtos;
 using Application.Answers.Queries;
 using Common.Exceptions;
-using Domain;
-using Mapster;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace Application.Answers.Handlers
 {

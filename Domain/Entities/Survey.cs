@@ -2,25 +2,28 @@
 
 namespace Domain.Entities
 {
+    /// <summary>
+    /// Опрос
+    /// </summary>
     public class Survey : BaseEntity<Guid>, IHaveDateTrack, IHaveDeleteTrack
     {
         /// <summary>
-        /// Название теста
+        /// Название опроса
         /// </summary>
         public required string Name { get; set; }
 
         /// <summary>
-        /// Описание теста
+        /// Описание опроса
         /// </summary>
         public string? Description { get; set; }
 
         /// <summary>
-        /// Связка с вопросами
+        /// Вопросы
         /// </summary>
         public ICollection<Question>? Questions { get; set; }
 
         /// <summary>
-        /// Связка с пользователями
+        /// Связь с пользователями
         /// </summary>
         public ICollection<UserSurveyBind>? UserSurveyBinds {  get; set; } 
 

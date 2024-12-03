@@ -1,11 +1,17 @@
-﻿using Application.Users.Dtos;
+﻿using Application.Abstractions.Models;
+using Application.Users.Dtos;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel;
 
 namespace Application.Users.Commands
 {
-    public class CreateUserCommand : IRequest<string>
+    [Description("Регистрация пользователя")]
+    public class CreateUserCommand : IRequest<CreatedOrUpdatedEntityViewModel<Guid>>
     {
+        /// <summary>
+        /// Тело запроса
+        /// </summary>
         [FromBody]
         public required CreateUserModel Body { get; set; }
     }

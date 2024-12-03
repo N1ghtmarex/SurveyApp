@@ -5,6 +5,9 @@
     /// </summary>
     public class AddAnswerModel
     { 
+        /// <summary>
+        /// Идентификатор вопроса
+        /// </summary>
         public Guid QuestionId { get; set; }
         /// <summary>
         /// Текст варианта ответа

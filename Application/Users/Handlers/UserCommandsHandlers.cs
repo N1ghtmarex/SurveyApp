@@ -1,4 +1,5 @@
 ﻿using Application.Abstractions.Interfaces;
+using Application.Abstractions.Models;
 using Application.Users.Commands;
 using Common.Exceptions;
 using Common.Interfaces;
@@ -8,9 +9,9 @@ using MediatR;
 namespace Application.Users.Handlers
 {
     internal class UserCommandsHandlers(ApplicationDbContext dbContext, IPasswordService passwordService, IUserService userService, IUserMapper userMapper)
-        : IRequestHandler<CreateUserCommand, string>, IRequestHandler<AuthUserCommand, string>
+        : IRequestHandler<CreateUserCommand, CreatedOrUpdatedEntityViewModel<Guid>>, IRequestHandler<AuthUserCommand, Guid?>
     {
-        public async Task<string> Handle(CreateUserCommand request, CancellationToken cancellationToken)
+        public async Task<CreatedOrUpdatedEntityViewModel<Guid>> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
             var existedUser = await userService.GetUserByUsernameAsync(request.Body.Username, cancellationToken);
 
@@ -26,10 +27,10 @@ namespace Application.Users.Handlers
             var createdUser = await dbContext.Users.AddAsync(userToCreate, cancellationToken);
             await dbContext.SaveChangesAsync();
 
-            return createdUser.Entity.Id.ToString();
+            return new CreatedOrUpdatedEntityViewModel(createdUser.Entity.Id);
         }
 
-        public async Task<string> Handle(AuthUserCommand request, CancellationToken cancellationToken)
+        public async Task<Guid?> Handle(AuthUserCommand request, CancellationToken cancellationToken)
         {
             var user = await userService.GetUserByUsernameAsync(request.Body.Username, cancellationToken);
 
@@ -43,7 +44,7 @@ namespace Application.Users.Handlers
                 throw new ForbiddenException($"Неправильный пароль!");
             }
 
-            return user.Id.ToString();
+            return user.Id;
         }
     }
 }

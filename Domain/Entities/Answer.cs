@@ -1,5 +1,8 @@
 ﻿namespace Domain.Entities
 {
+    /// <summary>
+    /// Вариант ответа
+    /// </summary>
     public class Answer : BaseEntity<Guid>
     {
         /// <summary>
@@ -13,6 +16,9 @@
         /// </summary>
         public required string Title { get; set; }
 
+        /// <summary>
+        /// Отвеченные вопросы
+        /// </summary>
         public ICollection<Choice>? Choices { get; set; }
     }
 }

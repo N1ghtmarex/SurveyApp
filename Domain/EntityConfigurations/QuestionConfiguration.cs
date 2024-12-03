@@ -15,6 +15,7 @@ namespace Domain.EntityConfigurations
             builder.Property(x => x.SurveyId).IsRequired(true);
             builder.HasOne(x => x.Survey)
                 .WithMany(x => x.Questions)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasForeignKey(x => x.SurveyId);
 
             builder.HasMany(x => x.Answers)
