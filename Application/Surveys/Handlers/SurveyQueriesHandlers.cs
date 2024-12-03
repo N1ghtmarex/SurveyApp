@@ -2,14 +2,12 @@
 using Application.Surveys.Dtos;
 using Application.Surveys.Queries;
 using Common.Exceptions;
-using Domain;
 using Mapster;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace Application.Surveys.Handlers
 {
-    internal class SurveyQueriesHandlers(ApplicationDbContext dbContext, ISurveyService surveyService, IUserService userService, ISurveyMapper surveyMapper)
+    internal class SurveyQueriesHandlers(ISurveyService surveyService, IUserService userService, ISurveyMapper surveyMapper)
         : IRequestHandler<GetSurveyQuery, SurveyViewModel>, IRequestHandler<GetSurveysListQuery, SurveyListViewModel>, IRequestHandler<GetSurveyStatusQuery, string>,
         IRequestHandler<GetUserSurveyBindQuery, UserSurveyBindViewModel>
     {

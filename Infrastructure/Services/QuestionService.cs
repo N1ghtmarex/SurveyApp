@@ -19,7 +19,7 @@ namespace Infrastructure.Services
         public async Task<Question?> GetQuestionAsync(Guid questionId, CancellationToken cancellationToken, bool includeAnswers = false)
         {
             var query = dbContext.Questions
-                .Where(x => x.Id == questionId);
+                .Where(x => x.Id == questionId && !x.IsDeleted);
 
             if (includeAnswers)
             {

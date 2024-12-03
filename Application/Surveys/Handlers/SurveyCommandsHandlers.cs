@@ -136,7 +136,7 @@ namespace Application.Surveys.Handlers
                 throw new ObjectNotFoundException($"Опрос с идентификатором \"{request.SurveyId}\" не найден!");
             }
 
-            dbContext.Remove(survey);
+            survey.IsDeleted = true;
             await dbContext.SaveChangesAsync(cancellationToken);
         }
     }

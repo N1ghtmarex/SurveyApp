@@ -13,17 +13,17 @@ namespace Infrastructure.Services
         public async Task<Survey?> GetSurveyAsync(Guid id, CancellationToken cancellationToken, bool includeQuestions = false, bool includeAnswers = false)
         {
             var surveyQuery = dbContext.Surveys
-                .Where(x => x.Id == id);
+                .Where(x => x.Id == id && !x.IsDeleted);
 
             if (includeQuestions)
             {
-                surveyQuery = surveyQuery.Include(x => x.Questions);
+                surveyQuery = surveyQuery.Include(x => x.Questions!.Where(x => !x.IsDeleted));
             }
 
             if (includeAnswers)
             {
                 surveyQuery = surveyQuery
-                    .Include(x => x.Questions!)
+                    .Include(x => x.Questions!.Where(x => !x.IsDeleted))
                     .ThenInclude(x => x.Answers);
             }
 
@@ -55,6 +55,7 @@ namespace Infrastructure.Services
         public async Task<List<SurveyViewModel>?> GetSurveysListAsync(CancellationToken cancellationToken)
         {
             var surveys = await dbContext.Surveys
+                .Where(x => !x.IsDeleted)
                 .ProjectToType<SurveyViewModel>()
                 .ToListAsync(cancellationToken);
 

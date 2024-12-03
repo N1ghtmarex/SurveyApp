@@ -3,13 +3,12 @@ using Application.Abstractions.Models;
 using Application.Questions.Commands;
 using Common.Exceptions;
 using Domain;
-using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Questions.Handlers
 {
-    internal class QuestionCommandsHandlers(ApplicationDbContext dbContext, ISurveyService surveyService)
+    internal class QuestionCommandsHandlers(ApplicationDbContext dbContext, ISurveyService surveyService, IQuestionService questionService, IQuestionMapper questionMapper)
         : IRequestHandler<AddQuestionCommand, CreatedOrUpdatedEntityViewModel<Guid>>, IRequestHandler<UpdateQuestionCommand, CreatedOrUpdatedEntityViewModel<Guid>>, IRequestHandler<DeleteQuestionCommand>
     {
         public async Task<CreatedOrUpdatedEntityViewModel<Guid>> Handle(AddQuestionCommand request, CancellationToken cancellationToken)
@@ -19,15 +18,10 @@ namespace Application.Questions.Handlers
 
             if (survey == null)
             {
-                throw new ObjectNotFoundException($"Опрос с идентификатором \"\" не найден!");
+                throw new ObjectNotFoundException($"Опрос с идентификатором \"{request.Body.SurveyId}\" не найден!");
             }
 
-            var questionToCreate = new Question
-            {
-                SurveyId = survey.Id,
-                Title = request.Body.Title,
-                Type = request.Body.Type
-            };
+            var questionToCreate = questionMapper.MapToEntity((request.Body, survey.Id));
             
             var createdQuestion = await dbContext.AddAsync(questionToCreate, cancellationToken);
             dbContext.Entry(survey).State = EntityState.Modified;
@@ -39,13 +33,11 @@ namespace Application.Questions.Handlers
 
         public async Task<CreatedOrUpdatedEntityViewModel<Guid>> Handle(UpdateQuestionCommand request, CancellationToken cancellationToken)
         {
-            var question = await dbContext.Questions
-                .Where(x => x.Id == request.Body.Id)
-                .SingleOrDefaultAsync(cancellationToken);
+            var question = await questionService.GetQuestionAsync(request.Body.Id, cancellationToken);
 
             if (question == null)
             {
-                throw new ObjectNotFoundException($"Вопрос с идентификатором \"\" не найден!");
+                throw new ObjectNotFoundException($"Вопрос с идентификатором \"{request.Body.Id}\" не найден!");
             }
 
             question.Title = request.Body.Title;
@@ -67,7 +59,7 @@ namespace Application.Questions.Handlers
                 throw new ObjectNotFoundException();
             }
 
-            dbContext.Questions.Remove(question);
+            question.IsDeleted = true;
             await dbContext.SaveChangesAsync(cancellationToken);
         }
     }
