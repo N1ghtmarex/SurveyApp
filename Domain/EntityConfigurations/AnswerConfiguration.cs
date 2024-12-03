@@ -15,10 +15,10 @@ namespace Domain.EntityConfigurations
             builder.Property(x => x.QuestionId).IsRequired(true);
             builder.HasOne(x => x.Question)
                 .WithMany(x => x.Answers)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasForeignKey(x => x.QuestionId);
 
             builder.Property(x => x.Title).IsRequired(true);
-            builder.Property(x => x.IsTrue).IsRequired(true);
         }
     }
 }

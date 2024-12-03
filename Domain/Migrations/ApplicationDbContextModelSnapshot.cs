@@ -29,10 +29,6 @@ namespace Domain.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<bool>("IsTrue")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_true");
-
                     b.Property<Guid>("QuestionId")
                         .HasColumnType("uuid")
                         .HasColumnName("question_id");
@@ -42,9 +38,9 @@ namespace Domain.Migrations
                         .HasColumnType("text")
                         .HasColumnName("title");
 
-                    b.Property<Guid?>("UserTestBindId")
+                    b.Property<Guid?>("UserSurveyBindId")
                         .HasColumnType("uuid")
-                        .HasColumnName("user_test_bind_id");
+                        .HasColumnName("user_survey_bind_id");
 
                     b.HasKey("Id")
                         .HasName("pk_answer");
@@ -52,10 +48,44 @@ namespace Domain.Migrations
                     b.HasIndex("QuestionId")
                         .HasDatabaseName("ix_answer_question_id");
 
-                    b.HasIndex("UserTestBindId")
-                        .HasDatabaseName("ix_answer_user_test_bind_id");
+                    b.HasIndex("UserSurveyBindId")
+                        .HasDatabaseName("ix_answer_user_survey_bind_id");
 
                     b.ToTable("answer", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.Choice", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AnswerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("answer_id");
+
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("question_id");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_choice");
+
+                    b.HasIndex("AnswerId")
+                        .HasDatabaseName("ix_choice_answer_id");
+
+                    b.HasIndex("QuestionId")
+                        .HasDatabaseName("ix_choice_question_id");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_choice_user_id");
+
+                    b.ToTable("choice", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Question", b =>
@@ -73,9 +103,9 @@ namespace Domain.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
-                    b.Property<Guid>("TestId")
+                    b.Property<Guid>("SurveyId")
                         .HasColumnType("uuid")
-                        .HasColumnName("test_id");
+                        .HasColumnName("survey_id");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -93,13 +123,13 @@ namespace Domain.Migrations
                     b.HasKey("Id")
                         .HasName("pk_question");
 
-                    b.HasIndex("TestId")
-                        .HasDatabaseName("ix_question_test_id");
+                    b.HasIndex("SurveyId")
+                        .HasDatabaseName("ix_question_survey_id");
 
                     b.ToTable("question", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Test", b =>
+            modelBuilder.Entity("Domain.Entities.Survey", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -128,9 +158,9 @@ namespace Domain.Migrations
                         .HasColumnName("updated_at");
 
                     b.HasKey("Id")
-                        .HasName("pk_test");
+                        .HasName("pk_survey");
 
-                    b.ToTable("test", (string)null);
+                    b.ToTable("survey", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.User", b =>
@@ -140,41 +170,68 @@ namespace Domain.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<byte[]>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("password_hash");
+
+                    b.Property<byte[]>("PasswordSalt")
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("password_salt");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("username");
+
                     b.HasKey("Id")
                         .HasName("pk_user");
+
+                    b.HasIndex("Username")
+                        .IsUnique()
+                        .HasDatabaseName("ix_user_username");
 
                     b.ToTable("user", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.UserTestBind", b =>
+            modelBuilder.Entity("Domain.Entities.UserSurveyBind", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<DateTimeOffset>("CompletedAt")
+                    b.Property<DateTimeOffset?>("CompletedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("completed_at");
 
-                    b.Property<Guid>("TestId")
+                    b.Property<DateTimeOffset>("StartedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("started_at");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("SurveyId")
                         .HasColumnType("uuid")
-                        .HasColumnName("test_id");
+                        .HasColumnName("survey_id");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid")
                         .HasColumnName("user_id");
 
                     b.HasKey("Id")
-                        .HasName("pk_user_test_bind");
+                        .HasName("pk_user_survey_bind");
 
-                    b.HasIndex("TestId")
-                        .HasDatabaseName("ix_user_test_bind_test_id");
+                    b.HasIndex("SurveyId")
+                        .HasDatabaseName("ix_user_survey_bind_survey_id");
 
                     b.HasIndex("UserId")
-                        .HasDatabaseName("ix_user_test_bind_user_id");
+                        .HasDatabaseName("ix_user_survey_bind_user_id");
 
-                    b.ToTable("user_test_bind", (string)null);
+                    b.ToTable("user_survey_bind", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Answer", b =>
@@ -186,45 +243,80 @@ namespace Domain.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_answer_questions_question_id");
 
-                    b.HasOne("Domain.Entities.UserTestBind", null)
+                    b.HasOne("Domain.Entities.UserSurveyBind", null)
                         .WithMany("Answers")
-                        .HasForeignKey("UserTestBindId")
-                        .HasConstraintName("fk_answer_users_test_binds_user_test_bind_id");
+                        .HasForeignKey("UserSurveyBindId")
+                        .HasConstraintName("fk_answer_user_survey_binds_user_survey_bind_id");
 
                     b.Navigation("Question");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Question", b =>
+            modelBuilder.Entity("Domain.Entities.Choice", b =>
                 {
-                    b.HasOne("Domain.Entities.Test", "Test")
-                        .WithMany("Questions")
-                        .HasForeignKey("TestId")
+                    b.HasOne("Domain.Entities.Answer", "Answer")
+                        .WithMany("Choices")
+                        .HasForeignKey("AnswerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_question_tests_test_id");
+                        .HasConstraintName("fk_choice_answer_answer_id");
 
-                    b.Navigation("Test");
-                });
-
-            modelBuilder.Entity("Domain.Entities.UserTestBind", b =>
-                {
-                    b.HasOne("Domain.Entities.Test", "Test")
-                        .WithMany("UserTestBinds")
-                        .HasForeignKey("TestId")
+                    b.HasOne("Domain.Entities.Question", "Question")
+                        .WithMany()
+                        .HasForeignKey("QuestionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_user_test_bind_test_test_id");
+                        .HasConstraintName("fk_choice_questions_question_id");
 
                     b.HasOne("Domain.Entities.User", "User")
-                        .WithMany("UserTestBinds")
+                        .WithMany("Choices")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_user_test_bind_user_user_id");
+                        .HasConstraintName("fk_choice_users_user_id");
 
-                    b.Navigation("Test");
+                    b.Navigation("Answer");
+
+                    b.Navigation("Question");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Question", b =>
+                {
+                    b.HasOne("Domain.Entities.Survey", "Survey")
+                        .WithMany("Questions")
+                        .HasForeignKey("SurveyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_question_surveys_survey_id");
+
+                    b.Navigation("Survey");
+                });
+
+            modelBuilder.Entity("Domain.Entities.UserSurveyBind", b =>
+                {
+                    b.HasOne("Domain.Entities.Survey", "Survey")
+                        .WithMany("UserSurveyBinds")
+                        .HasForeignKey("SurveyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_user_survey_bind_survey_survey_id");
+
+                    b.HasOne("Domain.Entities.User", "User")
+                        .WithMany("UserSurveyBinds")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_user_survey_bind_user_user_id");
+
+                    b.Navigation("Survey");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Answer", b =>
+                {
+                    b.Navigation("Choices");
                 });
 
             modelBuilder.Entity("Domain.Entities.Question", b =>
@@ -232,19 +324,21 @@ namespace Domain.Migrations
                     b.Navigation("Answers");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Test", b =>
+            modelBuilder.Entity("Domain.Entities.Survey", b =>
                 {
                     b.Navigation("Questions");
 
-                    b.Navigation("UserTestBinds");
+                    b.Navigation("UserSurveyBinds");
                 });
 
             modelBuilder.Entity("Domain.Entities.User", b =>
                 {
-                    b.Navigation("UserTestBinds");
+                    b.Navigation("Choices");
+
+                    b.Navigation("UserSurveyBinds");
                 });
 
-            modelBuilder.Entity("Domain.Entities.UserTestBind", b =>
+            modelBuilder.Entity("Domain.Entities.UserSurveyBind", b =>
                 {
                     b.Navigation("Answers");
                 });

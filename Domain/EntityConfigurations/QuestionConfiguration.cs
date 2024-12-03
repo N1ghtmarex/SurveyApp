@@ -12,10 +12,11 @@ namespace Domain.EntityConfigurations
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).IsRequired(true);
 
-            builder.Property(x => x.TestId).IsRequired(true);
-            builder.HasOne(x => x.Test)
+            builder.Property(x => x.SurveyId).IsRequired(true);
+            builder.HasOne(x => x.Survey)
                 .WithMany(x => x.Questions)
-                .HasForeignKey(x => x.TestId);
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasForeignKey(x => x.SurveyId);
 
             builder.HasMany(x => x.Answers)
                 .WithOne(x => x.Question)

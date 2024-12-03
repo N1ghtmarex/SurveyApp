@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Domain.EntityConfigurations
 {
-    public class TestConfiguration : IEntityTypeConfiguration<Test>
+    public class SurveyConfiguration : IEntityTypeConfiguration<Survey>
     {
-        public void Configure(EntityTypeBuilder<Test> builder)
+        public void Configure(EntityTypeBuilder<Survey> builder)
         {
-            builder.ToTable("test");
+            builder.ToTable("survey");
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).IsRequired(true);
 

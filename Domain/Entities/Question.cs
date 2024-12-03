@@ -3,13 +3,16 @@ using Domain.Enums;
 
 namespace Domain.Entities
 {
+    /// <summary>
+    /// Вопрос
+    /// </summary>
     public class Question : BaseEntity<Guid>, IHaveDateTrack, IHaveDeleteTrack
     {
         /// <summary>
         /// Идентификатор теста
         /// </summary>
-        public required Guid TestId { get; set; }
-        public Test? Test {  get; set; }
+        public required Guid SurveyId { get; set; }
+        public Survey? Survey {  get; set; }
 
         /// <summary>
         /// Текст вопроса
@@ -24,7 +27,7 @@ namespace Domain.Entities
         /// <summary>
         /// Связка с ответами
         /// </summary>
-        public required ICollection<Answer> Answers { get; set; }
+        public ICollection<Answer>? Answers { get; set; }
 
         /// <summary>
         /// Дата создания
