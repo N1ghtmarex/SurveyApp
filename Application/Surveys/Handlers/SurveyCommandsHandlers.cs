@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Surveys.Handlers
 {
-    public class SurveyCommandsHandlers(ApplicationDbContext dbContext, ISurveyService surveyService,
-        IQuestionMapper questionMapper, IAnswerMapper answerMapper)
+    public class SurveyCommandsHandlers(ApplicationDbContext dbContext, ISurveyService surveyService, ISurveyMapper surveyMapper,
+        IQuestionMapper questionMapper, IAnswerMapper answerMapper, IUserService userService)
         : IRequestHandler<CreateSurveyCommand, string>, IRequestHandler<StartSurveyCommand, string>, IRequestHandler<CompleteSurveyCommand, string>,
         IRequestHandler<UpdateSurveyCommand>, IRequestHandler<DeleteSurveyCommand>
     {
@@ -50,38 +50,28 @@ namespace Application.Surveys.Handlers
 
         public async Task<string> Handle(StartSurveyCommand request, CancellationToken cancellationToken)
         {
-            var user = await dbContext.Users
-                .Where(x => x.Id == request.Body.UserId)
-                .SingleOrDefaultAsync(cancellationToken);
+            var user = await userService.GetUserByIdAsync(request.Body.UserId, cancellationToken);
 
             if (user == null)
             {
                 throw new ObjectNotFoundException($"Пользователь с идентификатором \"{request.Body.UserId}\" не найден!");
             }
 
-            var survey = await surveyService.GetSurveyAsync(request.Body.SurveyId.ToString(), cancellationToken);
+            var survey = await surveyService.GetSurveyAsync(request.Body.SurveyId, cancellationToken);
 
             if (survey == null)
             {
                 throw new ObjectNotFoundException($"Опрос с идентификатором \"{request.Body.SurveyId}\" не найден!");
             }
 
-            var userSurveyInProgressBinds = await dbContext.UserSurveyBinds
-                .Where(x => x.UserId == user.Id && x.SurveyId == survey.Id && x.Status == SurveyStatusEnum.InProgress)
-                .FirstOrDefaultAsync(cancellationToken);
+            var userSurveyInProgressBinds = await surveyService.GetUserSurveyBindAsync(survey.Id, user.Id, cancellationToken, status: SurveyStatusEnum.InProgress);
 
             if (userSurveyInProgressBinds != null)
             {
                 throw new BusinessLogicException($"Завершите предыдущую попытку прежде чем начать новую!");
             }
 
-            var userSurveyBindToCreate = new UserSurveyBind
-            {
-                UserId = user.Id,
-                SurveyId = survey.Id,
-                Status = SurveyStatusEnum.InProgress,
-                StartedAt = DateTimeOffset.UtcNow
-            };
+            var userSurveyBindToCreate = surveyMapper.MapToBind((user.Id, survey.Id));
 
             var createdUserSurveyBind = await dbContext.UserSurveyBinds.AddAsync(userSurveyBindToCreate, cancellationToken);
             await dbContext.SaveChangesAsync(cancellationToken);
@@ -91,25 +81,21 @@ namespace Application.Surveys.Handlers
 
         public async Task<string> Handle(CompleteSurveyCommand request, CancellationToken cancellationToken)
         {
-            var user = await dbContext.Users
-                .Where(x => x.Id == request.Body.UserId)
-                .SingleOrDefaultAsync(cancellationToken);
+            var user = await userService.GetUserByIdAsync(request.Body.UserId, cancellationToken);
 
             if (user == null)
             {
                 throw new ObjectNotFoundException($"Пользователь с идентификатором \"{request.Body.UserId}\" не найден!");
             }
 
-            var survey = await surveyService.GetSurveyAsync(request.Body.SurveyId.ToString(), cancellationToken);
+            var survey = await surveyService.GetSurveyAsync(request.Body.SurveyId, cancellationToken);
 
             if (survey == null)
             {
                 throw new ObjectNotFoundException($"Опрос с идентификатором \"{request.Body.SurveyId}\" не найден!");
             }
 
-            var userSurveyInProgressBinds = await dbContext.UserSurveyBinds
-                .Where(x => x.UserId == user.Id && x.SurveyId == survey.Id && x.Status == SurveyStatusEnum.InProgress)
-                .FirstOrDefaultAsync(cancellationToken);
+            var userSurveyInProgressBinds = await surveyService.GetUserSurveyBindAsync(survey.Id, user.Id, cancellationToken, status: SurveyStatusEnum.InProgress);
 
             if (userSurveyInProgressBinds == null)
             {
@@ -125,14 +111,11 @@ namespace Application.Surveys.Handlers
 
         public async Task Handle(UpdateSurveyCommand request, CancellationToken cancellationToken)
         {
-            var survey = await dbContext.Surveys
-                .Where(x => x.Id == request.Body.Id)
-                .Include(x => x.Questions)
-                .SingleOrDefaultAsync(cancellationToken);
+            var survey = await surveyService.GetSurveyAsync(request.Body.Id, cancellationToken);
 
             if (survey == null)
             {
-                throw new ObjectNotFoundException();
+                throw new ObjectNotFoundException($"Опрос с идентификатором \"{request.Body.Id}\" не найден!");
             }
 
             survey.Name = request.Body.Name;
@@ -143,13 +126,11 @@ namespace Application.Surveys.Handlers
 
         public async Task Handle(DeleteSurveyCommand request, CancellationToken cancellationToken)
         {
-            var survey = await dbContext.Surveys
-                .Where(x => x.Id == request.SurveyId)
-                .SingleOrDefaultAsync(cancellationToken);
+            var survey = await surveyService.GetSurveyAsync(request.SurveyId, cancellationToken);
 
             if (survey == null)
             {
-                throw new ObjectNotFoundException();
+                throw new ObjectNotFoundException($"Опрос с идентификатором \"{request.SurveyId}\" не найден!");
             }
 
             dbContext.Remove(survey);

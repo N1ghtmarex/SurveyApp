@@ -1,4 +1,5 @@
-﻿using Application.Answers.Commands;
+﻿using Application.Abstractions.Interfaces;
+using Application.Answers.Commands;
 using Common.Exceptions;
 using Domain;
 using Domain.Entities;
@@ -8,31 +9,30 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Answers.Handlers
 {
-    internal class AnswerCommandsHandlers(ApplicationDbContext dbContext)
+    internal class AnswerCommandsHandlers(ApplicationDbContext dbContext, IQuestionService questionService, ISurveyService surveyService, IAnswerMapper answerMapper,
+        IAnswerService answerService)
         : IRequestHandler<AddAnswerCommand, string>, IRequestHandler<UpdateAnswerCommand>, IRequestHandler<DeleteAnswerCommand>
     {
         public async Task<string> Handle(AddAnswerCommand request, CancellationToken cancellationToken)
         {
-            var question = await dbContext.Questions
-                .Where(x => x.Id == request.Body.QuestionId)
-                .SingleOrDefaultAsync(cancellationToken);
+            var question = await questionService.GetQuestionAsync(request.Body.QuestionId, cancellationToken);
 
             if (question == null)
             {
                 throw new ObjectNotFoundException($"Вопрос с идентификатором \"{request.Body.QuestionId}\" не найден!");
             }
 
-            var survey = await dbContext.Surveys
-                .Where(x => x.Id == question.SurveyId)
-                .SingleOrDefaultAsync(cancellationToken);
+            var survey = await surveyService.GetSurveyAsync(question.SurveyId, cancellationToken);
 
-            var answerToCreate = new Answer
+            if (survey == null)
             {
-                QuestionId = question.Id,
-                Title = request.Body.Title
-            };
+                throw new ObjectNotFoundException($"Опрос с идентификатором \"{question.SurveyId}\" не найден!");
+            }
+
+            var answerToCreate = answerMapper.MapToEntity((request.Body, question.Id));
 
             var createdAnswer = await dbContext.AddAsync(answerToCreate, cancellationToken);
+
             dbContext.Entry(survey).State = EntityState.Modified;
             await dbContext.SaveChangesAsync(cancellationToken);
 
@@ -41,31 +41,35 @@ namespace Application.Answers.Handlers
 
         public async Task Handle(UpdateAnswerCommand request, CancellationToken cancellationToken)
         {
-            var answer = await dbContext.Answers
-                .Where(x => x.Id == request.Body.Id)
-                .SingleOrDefaultAsync(cancellationToken);
+            var answer = await answerService.GetAnswerAsync(request.Body.Id, cancellationToken);
 
             if (answer == null)
             {
                 throw new ObjectNotFoundException($"Ответ с идентификатором \"{request.Body.Id}\" не найден!");
             }
 
+            var question = await questionService.GetQuestionAsync(answer.QuestionId, cancellationToken);
+
+            if (question == null)
+            {
+                throw new ObjectNotFoundException($"Вопрос с идентификатором \"{answer.QuestionId}\" не найден!");
+            }
+
+            var survey = await surveyService.GetSurveyAsync(question.SurveyId, cancellationToken);
+
+            if (survey == null)
+            {
+                throw new ObjectNotFoundException($"Опрос с идентификатором \"{question.SurveyId}\" не найден!");
+            }
+
             answer.Title = request.Body.Title;
-
-            var surveyToUpdate = await dbContext.Surveys
-                .Where(x => x.Questions.Any(x => x.Answers.Any(x => x.Id == answer.Id)))
-                .SingleOrDefaultAsync(cancellationToken);
-
-            dbContext.Entry(surveyToUpdate).State = EntityState.Modified;
-
+            surveyService.UpdateEntityStatus(survey);
             await dbContext.SaveChangesAsync(cancellationToken);
         }
 
         public async Task Handle(DeleteAnswerCommand request, CancellationToken cancellationToken)
         {
-            var answer = await dbContext.Answers
-                .Where(x => x.Id == request.AnswerId)
-                .SingleOrDefaultAsync(cancellationToken);
+            var answer = await answerService.GetAnswerAsync(request.AnswerId, cancellationToken);
 
             if (answer == null)
             {

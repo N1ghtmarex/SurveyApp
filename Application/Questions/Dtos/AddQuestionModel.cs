@@ -8,7 +8,7 @@ namespace Application.Questions.Dtos
     /// </summary>
     public class AddQuestionModel
     {
-        public Guid? SurveyId { get; set; }
+        public Guid SurveyId { get; set; }
 
         /// <summary>
         /// Текст вопроса

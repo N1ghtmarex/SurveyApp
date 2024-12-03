@@ -2,7 +2,7 @@
 {
     public class StartOrCompleteSurveyModel
     {
-        public Guid? UserId { get; set; }
+        public Guid UserId { get; set; }
         public required Guid SurveyId { get; set; }
     }
 }

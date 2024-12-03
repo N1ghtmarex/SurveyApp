@@ -34,7 +34,7 @@ namespace Application.Questions.Handlers
             var includeQuestions = true;
             var includeAnswers = true;
 
-            var survey = await surveyService.GetSurveyAsync(request.SurveyId.ToString(), cancellationToken, includeQuestions, includeAnswers);
+            var survey = await surveyService.GetSurveyAsync(request.SurveyId, cancellationToken, includeQuestions, includeAnswers);
 
             if (survey == null)
             {

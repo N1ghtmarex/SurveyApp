@@ -10,6 +10,8 @@ namespace Infrastructure
         {
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<ISurveyService, SurveyService>();
+            services.AddTransient<IQuestionService, QuestionService>();
+            services.AddTransient<IAnswerService, AnswerService>();
 
             return services;
         }

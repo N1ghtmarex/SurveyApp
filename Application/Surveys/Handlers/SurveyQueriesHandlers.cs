@@ -1,5 +1,4 @@
 ﻿using Application.Abstractions.Interfaces;
-using Application.Questions.Dtos;
 using Application.Surveys.Dtos;
 using Application.Surveys.Queries;
 using Common.Exceptions;
@@ -10,16 +9,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Surveys.Handlers
 {
-    internal class SurveyQueriesHandlers(ApplicationDbContext dbContext, ISurveyService surveyService)
+    internal class SurveyQueriesHandlers(ApplicationDbContext dbContext, ISurveyService surveyService, IUserService userService, ISurveyMapper surveyMapper)
         : IRequestHandler<GetSurveyQuery, SurveyViewModel>, IRequestHandler<GetSurveysListQuery, SurveyListViewModel>, IRequestHandler<GetSurveyStatusQuery, string>,
         IRequestHandler<GetUserSurveyBindQuery, UserSurveyBindViewModel>
     {
         public async Task<SurveyViewModel> Handle(GetSurveyQuery request, CancellationToken cancellationToken)
         {
-            var includeQuestions = true;
-            var includeAnswers = true;
-
-            var survey = await surveyService.GetSurveyAsync(request.SurveyId.ToString(), cancellationToken, includeQuestions, includeAnswers);
+            var survey = await surveyService.GetSurveyAsync(request.SurveyId, cancellationToken, includeQuestions: true, includeAnswers: true);
 
             if (survey == null)
             {
@@ -31,34 +27,28 @@ namespace Application.Surveys.Handlers
 
         public async Task<SurveyListViewModel> Handle(GetSurveysListQuery request, CancellationToken cancellationToken)
         {
-            var surveys = await dbContext.Surveys
-                .ProjectToType<SurveyViewModel>()
-                .ToListAsync(cancellationToken);
+            var surveys = await surveyService.GetSurveysListAsync(cancellationToken);
 
-            return new SurveyListViewModel { Surveys = surveys };
+            return new SurveyListViewModel { Surveys = surveys ?? new List<SurveyViewModel>() };
         }
 
         public async Task<string> Handle(GetSurveyStatusQuery request, CancellationToken cancellationToken)
         {
-            var user = await dbContext.Users
-                .Where(x => x.Id == request.UserId)
-                .SingleOrDefaultAsync(cancellationToken);
+            var user = await userService.GetUserByIdAsync(request.UserId, cancellationToken);
 
             if (user == null)
             {
                 throw new ObjectNotFoundException($"Пользователь с идентификатором \"{request.UserId}\" не найден!");
             }
 
-            var survey = await surveyService.GetSurveyAsync(request.SurveyId.ToString(), cancellationToken);
+            var survey = await surveyService.GetSurveyAsync(request.SurveyId, cancellationToken);
 
             if (survey == null)
             {
                 throw new ObjectNotFoundException($"Опрос с идентификатором \"{request.SurveyId}\" не найден!");
             }
 
-            var userSurveyBind = await dbContext.UserSurveyBinds
-                .Where(x => x.UserId == user.Id && x.SurveyId == survey.Id)
-                .SingleOrDefaultAsync(cancellationToken);
+            var userSurveyBind = await surveyService.GetUserSurveyBindAsync(survey.Id, user.Id, cancellationToken);
 
             if (userSurveyBind == null)
             {
@@ -70,17 +60,29 @@ namespace Application.Surveys.Handlers
 
         public async Task<UserSurveyBindViewModel> Handle(GetUserSurveyBindQuery request, CancellationToken cancellationToken)
         {
-            var userSurveyBind = await dbContext.UserSurveyBinds
-                .Where(x => x.SurveyId == request.SurveyId && x.UserId == request.UserId)
-                .ProjectToType<UserSurveyBindViewModel>()
-                .SingleOrDefaultAsync(cancellationToken);
+            var user = await userService.GetUserByIdAsync(request.UserId, cancellationToken);
+
+            if (user == null)
+            {
+                throw new ObjectNotFoundException($"Пользователь с идентификатором \"{request.UserId}\" не найден!");
+            }
+
+            var survey = await surveyService.GetSurveyAsync(request.SurveyId, cancellationToken);
+
+            if (survey == null)
+            {
+                throw new ObjectNotFoundException($"Пользователь с идентификатором \"{request.SurveyId}\" не найден!");
+            }
+
+            var userSurveyBind = await surveyService.GetUserSurveyBindAsync(survey.Id, user.Id, cancellationToken);
 
             if (userSurveyBind == null)
             {
                 throw new ObjectNotFoundException();
             }
+            var userSurveyBindViewModel = surveyMapper.MapBindToViewModel(userSurveyBind);
 
-            return userSurveyBind;
+            return userSurveyBindViewModel;
         }
     }
 }

@@ -13,14 +13,8 @@ namespace Application.Questions.Handlers
     {
         public async Task<string> Handle(AddQuestionCommand request, CancellationToken cancellationToken)
         {
-            var surveyId = request.Body.SurveyId.ToString();
 
-            if (surveyId == null)
-            {
-                throw new BusinessLogicException($"Не задан идентификатор опроса!");
-            }
-
-            var survey = await surveyService.GetSurveyAsync(surveyId, cancellationToken);
+            var survey = await surveyService.GetSurveyAsync(request.Body.SurveyId, cancellationToken);
 
             if (survey == null)
             {
