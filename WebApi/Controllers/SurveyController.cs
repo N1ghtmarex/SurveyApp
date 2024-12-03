@@ -55,14 +55,18 @@ namespace WebApi.Controllers
         /// <summary>
         /// Запуск прохожения опроса
         /// </summary>
-        /// <param name="model">Модель запроса</param>
+        /// <param name="surveyId">Идентификатор опроса</param>
         /// <param name="cancellationToken">Токен отмены</param>
         /// <returns>Пустой ответ</returns>
-        [HttpPost("start")]
+        [HttpPost("start/{surveyId}")]
         [Authorize]
-        public async Task<ActionResult> StartSurvey(StartOrCompleteSurveyModel model, CancellationToken cancellationToken)
+        public async Task<ActionResult> StartSurvey([FromRoute] Guid surveyId, CancellationToken cancellationToken)
         {
-            model.UserId = Guid.Parse(User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value);
+            var model = new StartOrCompleteSurveyModel 
+            { 
+                SurveyId = surveyId,
+                UserId = Guid.Parse(User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value)
+            };
 
             await sender.Send(new StartSurveyCommand { Body = model }, cancellationToken);
 
@@ -72,14 +76,18 @@ namespace WebApi.Controllers
         /// <summary>
         /// Завершение прохождения опроса
         /// </summary>
-        /// <param name="model">Модель запроса</param>
+        /// <param name="surveyId">Идентификатор опроса</param>
         /// <param name="cancellationToken">Токен отмены</param>
         /// <returns>Пустой ответ</returns>
-        [HttpPost("complete")]
+        [HttpPost("complete/{surveyId}")]
         [Authorize]
-        public async Task<ActionResult> CompleteSurvey(StartOrCompleteSurveyModel model, CancellationToken cancellationToken)
+        public async Task<ActionResult> CompleteSurvey([FromRoute] Guid surveyId, CancellationToken cancellationToken)
         {
-            model.UserId = Guid.Parse(User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value);
+            var model = new StartOrCompleteSurveyModel
+            {
+                SurveyId = surveyId,
+                UserId = Guid.Parse(User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value)
+            };
 
             await sender.Send(new CompleteSurveyCommand { Body = model }, cancellationToken);
 
