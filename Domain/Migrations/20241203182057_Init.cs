@@ -33,7 +33,6 @@ namespace Domain.Migrations
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     username = table.Column<string>(type: "text", nullable: false),
-                    password = table.Column<string>(type: "text", nullable: false),
                     password_hash = table.Column<byte[]>(type: "bytea", nullable: false),
                     password_salt = table.Column<byte[]>(type: "bytea", nullable: false)
                 },
@@ -179,6 +178,12 @@ namespace Domain.Migrations
                 name: "ix_question_survey_id",
                 table: "question",
                 column: "survey_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_user_username",
+                table: "user",
+                column: "username",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "ix_user_survey_bind_survey_id",
