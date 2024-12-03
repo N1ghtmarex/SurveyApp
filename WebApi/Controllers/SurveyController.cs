@@ -1,7 +1,7 @@
-﻿using Application.Surveys.Commands;
+﻿using Application.Questions.Commands;
+using Application.Surveys.Commands;
 using Application.Surveys.Dtos;
 using Application.Surveys.Queries;
-using Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -52,9 +52,9 @@ namespace WebApi.Controllers
             var userId = Guid.Parse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value);
 
             var query = new GetSurveyStatusQuery
-            { 
+            {
                 UserId = userId,
-                SurveyId = surveyId 
+                SurveyId = surveyId
             };
 
             return await sender.Send(query, cancellationToken);
@@ -72,6 +72,22 @@ namespace WebApi.Controllers
             };
 
             return await sender.Send(query, cancellationToken);
+        }
+
+        [HttpPut]
+        public async Task<ActionResult> UpdateSurvey(UpdateSurveyCommand command, CancellationToken cancellationToken)
+        {
+            await sender.Send(command, cancellationToken);
+            return NoContent();
+        }
+
+        [HttpDelete("{surveyId}")]
+        public async Task<ActionResult> DeleteSurvey([FromRoute] Guid surveyId, CancellationToken cancellationToken)
+        {
+            var command = new DeleteSurveyCommand { SurveyId = surveyId };
+            await sender.Send(command, cancellationToken);
+
+            return NoContent();
         }
     }
 }

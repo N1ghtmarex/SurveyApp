@@ -8,6 +8,7 @@ namespace Application.Questions.Dtos
     /// </summary>
     public class AddQuestionModel
     {
+        public Guid? SurveyId { get; set; }
 
         /// <summary>
         /// Текст вопроса
@@ -18,6 +19,6 @@ namespace Application.Questions.Dtos
         /// Тип вопроса
         /// </summary>
         public required QuestionTypeEnum Type { get; set; }
-        public required List<AddAnswerModel> Answers { get; set; }
+        public List<AddAnswerModel>? Answers { get; set; }
     }
 }

@@ -27,5 +27,19 @@ namespace WebApi.Controllers
         {
             return await sender.Send(query, cancellationToken);
         }
+
+        [HttpPut]
+        public async Task<ActionResult> UpdateQuestion(UpdateQuestionCommand command, CancellationToken cancellationToken)
+        {
+            await sender.Send(command, cancellationToken);
+            return NoContent();
+        }
+
+        [HttpDelete("{questionId}")]
+        public async Task<ActionResult> DeleteQuestion(DeleteQuestionCommand command, CancellationToken cancellationToken)
+        {
+            await sender.Send(command, cancellationToken);
+            return NoContent();
+        }
     }
 }

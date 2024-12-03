@@ -13,7 +13,8 @@ namespace Application.Surveys.Handlers
 {
     public class SurveyCommandsHandlers(ApplicationDbContext dbContext, ISurveyService surveyService,
         IQuestionMapper questionMapper, IAnswerMapper answerMapper)
-        : IRequestHandler<CreateSurveyCommand, string>, IRequestHandler<StartSurveyCommand, string>, IRequestHandler<CompleteSurveyCommand, string>
+        : IRequestHandler<CreateSurveyCommand, string>, IRequestHandler<StartSurveyCommand, string>, IRequestHandler<CompleteSurveyCommand, string>,
+        IRequestHandler<UpdateSurveyCommand>, IRequestHandler<DeleteSurveyCommand>
     {
         public async Task<string> Handle(CreateSurveyCommand request, CancellationToken cancellationToken)
         {
@@ -121,5 +122,39 @@ namespace Application.Surveys.Handlers
 
             return "Попытка завершена!";
         }
+
+        public async Task Handle(UpdateSurveyCommand request, CancellationToken cancellationToken)
+        {
+            var survey = await dbContext.Surveys
+                .Where(x => x.Id == request.Body.Id)
+                .Include(x => x.Questions)
+                .SingleOrDefaultAsync(cancellationToken);
+
+            if (survey == null)
+            {
+                throw new ObjectNotFoundException();
+            }
+
+            survey.Name = request.Body.Name;
+            survey.Description = request.Body.Description;
+
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task Handle(DeleteSurveyCommand request, CancellationToken cancellationToken)
+        {
+            var survey = await dbContext.Surveys
+                .Where(x => x.Id == request.SurveyId)
+                .SingleOrDefaultAsync(cancellationToken);
+
+            if (survey == null)
+            {
+                throw new ObjectNotFoundException();
+            }
+
+            dbContext.Remove(survey);
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
     }
+    
 }

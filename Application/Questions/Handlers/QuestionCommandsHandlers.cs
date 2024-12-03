@@ -9,11 +9,18 @@ using Microsoft.EntityFrameworkCore;
 namespace Application.Questions.Handlers
 {
     internal class QuestionCommandsHandlers(ApplicationDbContext dbContext, ISurveyService surveyService)
-        : IRequestHandler<AddQuestionCommand, string>
+        : IRequestHandler<AddQuestionCommand, string>, IRequestHandler<UpdateQuestionCommand>, IRequestHandler<DeleteQuestionCommand>
     {
         public async Task<string> Handle(AddQuestionCommand request, CancellationToken cancellationToken)
         {
-            var survey = await surveyService.GetSurveyAsync(Guid.NewGuid().ToString(), cancellationToken);
+            var surveyId = request.Body.SurveyId.ToString();
+
+            if (surveyId == null)
+            {
+                throw new BusinessLogicException($"Не задан идентификатор опроса!");
+            }
+
+            var survey = await surveyService.GetSurveyAsync(surveyId, cancellationToken);
 
             if (survey == null)
             {
@@ -30,9 +37,41 @@ namespace Application.Questions.Handlers
             var createdQuestion = await dbContext.AddAsync(questionToCreate, cancellationToken);
             dbContext.Entry(survey).State = EntityState.Modified;
 
-            await dbContext.SaveChangesAsync();
+            await dbContext.SaveChangesAsync(cancellationToken);
 
             return questionToCreate.Id.ToString();
+        }
+
+        public async Task Handle(UpdateQuestionCommand request, CancellationToken cancellationToken)
+        {
+            var question = await dbContext.Questions
+                .Where(x => x.Id == request.Body.Id)
+                .SingleOrDefaultAsync(cancellationToken);
+
+            if (question == null)
+            {
+                throw new ObjectNotFoundException($"Вопрос с идентификатором \"\" не найден!");
+            }
+
+            question.Title = request.Body.Title;
+            question.Type = request.Body.Type;
+
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task Handle(DeleteQuestionCommand request, CancellationToken cancellationToken)
+        {
+            var question = await dbContext.Questions
+                .Where(x => x.Id == request.QuestionId)
+                .SingleOrDefaultAsync(cancellationToken);
+
+            if (question == null)
+            {
+                throw new ObjectNotFoundException();
+            }
+
+            dbContext.Questions.Remove(question);
+            await dbContext.SaveChangesAsync(cancellationToken);
         }
     }
 }
