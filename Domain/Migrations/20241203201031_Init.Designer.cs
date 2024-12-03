@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Domain.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241203182057_Init")]
+    [Migration("20241203201031_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -41,18 +41,11 @@ namespace Domain.Migrations
                         .HasColumnType("text")
                         .HasColumnName("title");
 
-                    b.Property<Guid?>("UserSurveyBindId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_survey_bind_id");
-
                     b.HasKey("Id")
                         .HasName("pk_answer");
 
                     b.HasIndex("QuestionId")
                         .HasDatabaseName("ix_answer_question_id");
-
-                    b.HasIndex("UserSurveyBindId")
-                        .HasDatabaseName("ix_answer_user_survey_bind_id");
 
                     b.ToTable("answer", (string)null);
                 });
@@ -246,11 +239,6 @@ namespace Domain.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_answer_questions_question_id");
 
-                    b.HasOne("Domain.Entities.UserSurveyBind", null)
-                        .WithMany("Answers")
-                        .HasForeignKey("UserSurveyBindId")
-                        .HasConstraintName("fk_answer_user_survey_binds_user_survey_bind_id");
-
                     b.Navigation("Question");
                 });
 
@@ -339,11 +327,6 @@ namespace Domain.Migrations
                     b.Navigation("Choices");
 
                     b.Navigation("UserSurveyBinds");
-                });
-
-            modelBuilder.Entity("Domain.Entities.UserSurveyBind", b =>
-                {
-                    b.Navigation("Answers");
                 });
 #pragma warning restore 612, 618
         }

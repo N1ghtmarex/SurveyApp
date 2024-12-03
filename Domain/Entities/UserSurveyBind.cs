@@ -25,11 +25,6 @@ namespace Domain.Entities
         public Survey? Survey { get; set; }
 
         /// <summary>
-        /// Ответы
-        /// </summary>
-        public ICollection<Answer>? Answers { get; set; }
-
-        /// <summary>
         /// Время начала
         /// </summary>
         public required DateTimeOffset StartedAt { get; set; }
